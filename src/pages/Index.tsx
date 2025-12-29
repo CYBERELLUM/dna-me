@@ -1,12 +1,14 @@
 import { Navigation } from "@/components/layout/Navigation";
 import { ParallaxSection } from "@/components/layout/ParallaxSection";
+import { DNAMatrix } from "@/components/layout/DNAMatrix";
 import { ChatInterface } from "@/components/research/ChatInterface";
 import { AIProviderConfig } from "@/components/research/AIProviderConfig";
 import { Sparkles, Zap, Globe, Shield } from "lucide-react";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      <DNAMatrix />
       <Navigation />
       
       <ParallaxSection className="pt-24 pb-16">

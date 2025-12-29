@@ -19,19 +19,24 @@ export const Navigation = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-border/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+          {/* Logo with Radar Pulse */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="relative">
+            <div className="relative flex items-center justify-center">
+              {/* Radar pulse rings */}
+              <div className="radar-ring" />
+              <div className="radar-ring radar-ring-delay-1" />
+              <div className="radar-ring radar-ring-delay-2" />
+              
+              {/* Glowing logo */}
               <img 
                 src={cyberellumLogo} 
                 alt="Cyberellum Technologies Logo" 
-                className="w-12 h-12 object-contain transition-transform duration-300 group-hover:scale-105"
+                className="w-12 h-12 object-contain logo-glow relative z-10"
               />
-              <div className="absolute inset-0 blur-lg bg-primary/20 -z-10" />
             </div>
             <div className="flex flex-col">
               <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">Cyberellum Technologies & Laboratory</span>
-              <span className="font-semibold text-foreground tracking-tight">Research Assistant</span>
+              <span className="font-semibold text-foreground tracking-tight glow-text">Research Assistant</span>
             </div>
           </Link>
 
