@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, Dna, FlaskConical, BookOpen, Database, Search } from "lucide-react";
+import { UserMenu } from "@/components/auth/UserMenu";
 
 const navItems = [
   { path: "/", label: "Research Assistant", icon: Search },
@@ -51,10 +52,13 @@ export const Navigation = () => {
             })}
           </div>
 
-          {/* Status Indicator */}
-          <div className="hidden md:flex items-center gap-2 text-xs font-mono text-muted-foreground">
-            <div className="pulse-dot" />
-            <span>System Online</span>
+          {/* User Menu */}
+          <div className="hidden md:flex items-center gap-4">
+            <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground">
+              <div className="pulse-dot" />
+              <span>Online</span>
+            </div>
+            <UserMenu />
           </div>
 
           {/* Mobile Menu Button */}
@@ -90,6 +94,9 @@ export const Navigation = () => {
                 </Link>
               );
             })}
+            <div className="pt-4 border-t border-border">
+              <UserMenu />
+            </div>
           </div>
         </div>
       )}
