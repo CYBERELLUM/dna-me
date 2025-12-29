@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Dna, FlaskConical, BookOpen, Database, Search } from "lucide-react";
+import { Menu, X, FlaskConical, BookOpen, Database, Search } from "lucide-react";
 import { UserMenu } from "@/components/auth/UserMenu";
+import cyberellumLogo from "@/assets/cyberellum-logo.png";
 
 const navItems = [
   { path: "/", label: "Research Assistant", icon: Search },
@@ -21,12 +22,16 @@ export const Navigation = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
             <div className="relative">
-              <Dna className="w-8 h-8 text-primary transition-transform duration-300 group-hover:rotate-180" />
-              <div className="absolute inset-0 blur-lg bg-primary/30 -z-10" />
+              <img 
+                src={cyberellumLogo} 
+                alt="Cyberellum Technologies Logo" 
+                className="w-12 h-12 object-contain transition-transform duration-300 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 blur-lg bg-primary/20 -z-10" />
             </div>
             <div className="flex flex-col">
-              <span className="font-semibold text-foreground tracking-tight">GenomicsLab</span>
-              <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">Research Platform</span>
+              <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">Cyberellum Technologies & Laboratory</span>
+              <span className="font-semibold text-foreground tracking-tight">Research Assistant</span>
             </div>
           </Link>
 
