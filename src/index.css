@@ -259,6 +259,48 @@
     animation: dna-fall linear infinite;
     white-space: nowrap;
   }
+
+  /* Large Triple Helix Strand */
+  @keyframes helix-fall {
+    0% {
+      transform: translateY(-100%) rotateZ(-2deg);
+      opacity: 0;
+    }
+    5% {
+      opacity: 0.4;
+    }
+    50% {
+      transform: translateY(50vh) rotateZ(2deg);
+      opacity: 0.5;
+    }
+    95% {
+      opacity: 0.4;
+    }
+    100% {
+      transform: translateY(100vh) rotateZ(-2deg);
+      opacity: 0;
+    }
+  }
+
+  .triple-helix-strand {
+    @apply absolute top-0 font-mono leading-none pointer-events-none;
+    font-size: 1.5rem;
+    color: hsl(var(--primary));
+    text-shadow: 
+      0 0 15px hsl(var(--primary) / 0.9),
+      0 0 30px hsl(var(--primary) / 0.6),
+      0 0 45px hsl(var(--primary) / 0.4),
+      0 0 60px hsl(var(--accent) / 0.2);
+    animation: helix-fall ease-in-out forwards;
+    white-space: pre;
+    opacity: 0;
+    filter: blur(0.3px);
+  }
+
+  .helix-line {
+    @apply leading-tight;
+    letter-spacing: 0.05em;
+  }
 }
 
 @layer utilities {
