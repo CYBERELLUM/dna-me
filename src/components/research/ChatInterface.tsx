@@ -1,25 +1,10 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Send, Bot, User, Loader2 } from "lucide-react";
-
-interface Message {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  timestamp: Date;
-  sources?: string[];
-}
+import { useResearchChat } from "@/hooks/useResearchChat";
 
 export const ChatInterface = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      role: "assistant",
-      content: "Welcome to the Research Assistant. I'm your AI-powered concierge for genomics research. I can help you query multiple AI providers, search scientific databases, and synthesize research findings. How can I assist your research today?",
-      timestamp: new Date(),
-    },
-  ]);
+  const { messages, isLoading, sendMessage } = useResearchChat();
   const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -33,30 +18,10 @@ export const ChatInterface = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: input,
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
+    
+    const message = input;
     setInput("");
-    setIsLoading(true);
-
-    // Simulate AI response (will be replaced with actual API calls)
-    setTimeout(() => {
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: `I've analyzed your query across multiple AI providers. Your research question regarding "${input.substring(0, 50)}..." has been processed. To enable full functionality, please configure your API keys in the settings panel below. Once configured, I'll route your queries to: Lovable AI, OpenAI, Gemini, Vertex AI, DeepAgent, and Abacus AI for comprehensive research synthesis.`,
-        timestamp: new Date(),
-        sources: ["Lovable AI", "OpenAI", "Gemini"],
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
-      setIsLoading(false);
-    }, 2000);
+    await sendMessage(message);
   };
 
   return (

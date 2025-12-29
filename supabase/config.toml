@@ -1,0 +1,4 @@
+project_id = "wymznknyhbsiqycrsduj"
+
+[functions.research-assistant]
+verify_jwt = false
