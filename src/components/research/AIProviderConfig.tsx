@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { ChevronDown, ChevronUp, Key, Server, Link2, Shield, Eye, EyeOff, Loader2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Key, Server, Link2, Shield, Eye, EyeOff, Loader2, Download, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useRef } from "react";
 
 interface ProviderField {
   id: string;
@@ -185,6 +186,56 @@ export const AIProviderConfig = () => {
     }
   };
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleExport = () => {
+    const exportData = {
+      version: "1.0",
+      exportedAt: new Date().toISOString(),
+      configurations: formValues,
+    };
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `cyberellum-api-config-${new Date().toISOString().split("T")[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("Configuration exported successfully");
+  };
+
+  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        const importData = JSON.parse(content);
+
+        if (!importData.configurations || typeof importData.configurations !== "object") {
+          throw new Error("Invalid configuration file format");
+        }
+
+        setFormValues(importData.configurations);
+        toast.success("Configuration imported successfully. Click 'Save Configuration' to persist changes.");
+      } catch (error) {
+        console.error("Error importing configuration:", error);
+        toast.error("Failed to import configuration. Invalid file format.");
+      }
+    };
+    reader.readAsText(file);
+    
+    // Reset the input so the same file can be imported again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* AI Providers */}
@@ -349,8 +400,32 @@ export const AIProviderConfig = () => {
         )}
       </div>
 
-      {/* Save Button */}
-      <div className="flex justify-end">
+      {/* Import/Export & Save Buttons */}
+      <div className="flex flex-wrap justify-between gap-3">
+        <div className="flex gap-2">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleImport}
+            accept=".json"
+            className="hidden"
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="btn-secondary flex items-center gap-2"
+          >
+            <Upload className="w-4 h-4" />
+            Import
+          </button>
+          <button
+            onClick={handleExport}
+            disabled={Object.keys(formValues).length === 0}
+            className="btn-secondary flex items-center gap-2 disabled:opacity-50"
+          >
+            <Download className="w-4 h-4" />
+            Export
+          </button>
+        </div>
         <button 
           onClick={handleSave}
           disabled={isSaving || !user}
