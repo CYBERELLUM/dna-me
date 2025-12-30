@@ -20,13 +20,16 @@ const Index = () => {
               <Sparkles className="w-4 h-4 text-primary" />
               <span className="text-sm font-mono text-primary">Multi-AI Research Platform</span>
             </div>
-            <div className="flex items-center justify-center gap-4 mb-4">
-              <img 
-                src="/lovable-uploads/e4b5c419-5926-4f91-ac00-8c157e726863.png" 
-                alt="Cyberellum Logo" 
-                className="w-16 h-16 md:w-20 md:h-20 object-contain"
-              />
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">
+            <div className="flex items-center justify-center gap-6 mb-4">
+              <div className="relative">
+                <img 
+                  src="/lovable-uploads/e4b5c419-5926-4f91-ac00-8c157e726863.png" 
+                  alt="Cyberellum Logo" 
+                  className="w-24 h-24 md:w-32 md:h-32 lg:w-40 lg:h-40 object-contain logo-glow"
+                />
+                <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl animate-pulse" />
+              </div>
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground">
                 Research <span className="text-gradient-primary">Assistant</span>
               </h1>
             </div>
