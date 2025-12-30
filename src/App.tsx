@@ -11,6 +11,11 @@ import DataVault from "./pages/DataVault";
 import Sequences from "./pages/Sequences";
 import Visualizations3D from "./pages/Visualizations3D";
 import NutrigenomicsForecasting from "./pages/NutrigenomicsForecasting";
+import FederatedNetwork from "./pages/FederatedNetwork";
+import Blogs from "./pages/Blogs";
+import About from "./pages/About";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 import Auth from "./pages/Auth";
 import Security from "./pages/Security";
 import NotFound from "./pages/NotFound";
@@ -34,6 +39,11 @@ const App = () => (
             <Route path="/visualizations" element={<Visualizations3D />} />
             <Route path="/nutrigenomics" element={<NutrigenomicsForecasting />} />
             <Route path="/data-vault" element={<DataVault />} />
+            <Route path="/federated-network" element={<FederatedNetwork />} />
+            <Route path="/blogs" element={<Blogs />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
