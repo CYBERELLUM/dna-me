@@ -1,5 +1,6 @@
 import { Navigation } from "@/components/layout/Navigation";
 import { ParallaxSection } from "@/components/layout/ParallaxSection";
+import Footer from "@/components/layout/Footer";
 import { useState, useEffect, useRef } from "react";
 import { 
   Plus, 
@@ -321,7 +322,7 @@ const LabNotebook = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Navigation />
       
       <ParallaxSection className="pt-24 pb-16">
@@ -476,6 +477,7 @@ const LabNotebook = () => {
           </div>
         </div>
       </ParallaxSection>
+      <Footer />
     </div>
   );
 };

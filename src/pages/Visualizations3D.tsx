@@ -1,5 +1,6 @@
 import { Navigation } from "@/components/layout/Navigation";
 import { ParallaxSection } from "@/components/layout/ParallaxSection";
+import Footer from "@/components/layout/Footer";
 import { useState, Suspense } from "react";
 import { Dna, Box, Layers, Loader2, Scissors, Clock, Sparkles, FlaskConical } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -69,7 +70,7 @@ const Visualizations3D = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Navigation />
 
       <ParallaxSection className="pt-24 pb-16">
@@ -387,6 +388,7 @@ const Visualizations3D = () => {
           </div>
         </div>
       </ParallaxSection>
+      <Footer />
     </div>
   );
 };

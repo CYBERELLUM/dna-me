@@ -1,6 +1,7 @@
 import { Navigation } from "@/components/layout/Navigation";
 import { DNAMatrix } from "@/components/layout/DNAMatrix";
 import { ParallaxSection } from "@/components/layout/ParallaxSection";
+import Footer from "@/components/layout/Footer";
 import { 
   ExternalLink, Calendar, Users, BookOpen, Search, Dna, 
   FileText, Database, Loader2, AlertCircle, RefreshCw, Heart,
@@ -122,7 +123,7 @@ const GenomicsLibrary = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background relative">
+    <div className="min-h-screen bg-background relative flex flex-col">
       <DNAMatrix />
       <Navigation />
       
@@ -499,6 +500,7 @@ const GenomicsLibrary = () => {
           </div>
         </div>
       </ParallaxSection>
+      <Footer />
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import { Navigation } from "@/components/layout/Navigation";
 import { ParallaxSection } from "@/components/layout/ParallaxSection";
 import { DNAMatrix } from "@/components/layout/DNAMatrix";
+import Footer from "@/components/layout/Footer";
 import { useState, Suspense } from "react";
 import { Leaf, FlaskConical, Clock, Sparkles, TrendingUp, Loader2, Dna } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -107,7 +108,7 @@ const NutrigenomicsForecasting = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <DNAMatrix />
       <Navigation />
 
@@ -278,6 +279,7 @@ const NutrigenomicsForecasting = () => {
           </div>
         </div>
       </ParallaxSection>
+      <Footer />
     </div>
   );
 };

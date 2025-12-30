@@ -3,11 +3,12 @@ import { ParallaxSection } from "@/components/layout/ParallaxSection";
 import { DNAMatrix } from "@/components/layout/DNAMatrix";
 import { ChatInterface } from "@/components/research/ChatInterface";
 import { AIProviderConfig } from "@/components/research/AIProviderConfig";
+import Footer from "@/components/layout/Footer";
 import { Sparkles, Zap, Globe, Shield } from "lucide-react";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background relative">
+    <div className="min-h-screen bg-background relative flex flex-col">
       <DNAMatrix />
       <Navigation />
       
@@ -59,6 +60,7 @@ const Index = () => {
           </div>
         </div>
       </ParallaxSection>
+      <Footer />
     </div>
   );
 };
