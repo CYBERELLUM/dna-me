@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, FlaskConical, BookOpen, Database, Search, Dna, Box, Leaf, Globe, Newspaper, Shield } from "lucide-react";
+import { Menu, BookOpen, Database, Search, Dna, Box, Leaf, Globe, Newspaper, Shield, FlaskConical } from "lucide-react";
 import { UserMenu } from "@/components/auth/UserMenu";
-import cyberellumLogo from "@/assets/cyberellum-logo.png";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const navItems = [
@@ -24,25 +23,9 @@ export const Navigation = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-border/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo with Radar Pulse */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="relative flex items-center justify-center">
-              {/* Radar pulse rings */}
-              <div className="radar-ring" />
-              <div className="radar-ring radar-ring-delay-1" />
-              <div className="radar-ring radar-ring-delay-2" />
-              
-              {/* Glowing logo */}
-              <img 
-                src={cyberellumLogo} 
-                alt="Cyberellum Technologies Logo" 
-                className="w-12 h-12 object-contain logo-glow relative z-10"
-              />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">Cyberellum Technologies & Laboratory</span>
-              <span className="font-semibold text-foreground tracking-tight glow-text">Research Assistant</span>
-            </div>
+          {/* Brand Name */}
+          <Link to="/" className="flex items-center gap-2 group">
+            <span className="font-semibold text-foreground tracking-tight glow-text">Research Assistant</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -88,14 +71,9 @@ export const Navigation = () => {
                 {/* Header */}
                 <div className="p-4 border-b border-border">
                   <Link to="/" onClick={() => setIsOpen(false)} className="flex items-center gap-3">
-                    <img 
-                      src={cyberellumLogo} 
-                      alt="Cyberellum" 
-                      className="w-10 h-10 object-contain"
-                    />
                     <div className="flex flex-col">
                       <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">CYBERELLUM</span>
-                      <span className="font-semibold text-foreground text-sm">Technologies</span>
+                      <span className="font-semibold text-foreground text-sm glow-text">Research Assistant</span>
                     </div>
                   </Link>
                 </div>
