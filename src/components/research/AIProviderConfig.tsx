@@ -49,7 +49,8 @@ const providers: Provider[] = [
     status: "disconnected",
     fields: [
       { id: "project_id", label: "Project ID", placeholder: "my-project-123", type: "text" },
-      { id: "api_key", label: "Service Account Key", placeholder: "JSON key...", type: "password" },
+      { id: "region", label: "Region", placeholder: "us-central1", type: "text" },
+      { id: "api_key", label: "API Key", placeholder: "AIza...", type: "password" },
     ],
   },
   {
