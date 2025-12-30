@@ -20,9 +20,16 @@ const Index = () => {
               <Sparkles className="w-4 h-4 text-primary" />
               <span className="text-sm font-mono text-primary">Multi-AI Research Platform</span>
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4">
-              Research <span className="text-gradient-primary">Assistant</span>
-            </h1>
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <img 
+                src="/lovable-uploads/e4b5c419-5926-4f91-ac00-8c157e726863.png" 
+                alt="Cyberellum Logo" 
+                className="w-16 h-16 md:w-20 md:h-20 object-contain"
+              />
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">
+                Research <span className="text-gradient-primary">Assistant</span>
+              </h1>
+            </div>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Your AI-powered concierge for genomics research. Query multiple AI providers simultaneously 
               for comprehensive research synthesis and analysis.

@@ -164,17 +164,6 @@ export const ChatInterface = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Prominent Header Above Input */}
-      <div className="flex items-center justify-center gap-4 p-6 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border-t border-primary/20">
-        <div className="relative">
-          <Bot className="w-10 h-10 text-primary" />
-          <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-green-500 animate-pulse" />
-        </div>
-        <div className="text-center">
-          <h3 className="text-xl font-bold text-foreground">Research Assistant</h3>
-          <p className="text-sm text-muted-foreground font-mono">Multi-AI Agent • Active</p>
-        </div>
-      </div>
 
       {/* Input */}
       <form onSubmit={handleSubmit} className="p-4 border-t border-border">
