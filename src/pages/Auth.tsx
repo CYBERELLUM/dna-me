@@ -23,7 +23,7 @@ const Auth = () => {
 
   useEffect(() => {
     if (!loading && user) {
-      navigate("/");
+      navigate("/dashboard");
     }
   }, [user, loading, navigate]);
 
@@ -68,7 +68,7 @@ const Auth = () => {
           }
         } else {
           toast.success("Welcome back!");
-          navigate("/");
+          navigate("/dashboard");
         }
       } else {
         const { data, error } = await signUp(email, password, displayName);
@@ -102,8 +102,8 @@ const Auth = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <MFASetup 
-          onComplete={() => navigate("/")} 
-          onSkip={() => navigate("/")}
+          onComplete={() => navigate("/dashboard")} 
+          onSkip={() => navigate("/dashboard")}
         />
       </div>
     );

@@ -3,11 +3,25 @@ import { ParallaxSection } from "@/components/layout/ParallaxSection";
 import { DNAMatrix } from "@/components/layout/DNAMatrix";
 import { ChatInterface } from "@/components/research/ChatInterface";
 import Footer from "@/components/layout/Footer";
-import { Sparkles, Zap, Globe, Shield, Settings } from "lucide-react";
+import { Sparkles, Zap, Globe, Shield, Settings, Loader2 } from "lucide-react";
 import cyberellumLogo from "@/assets/cyberellum-logo.png";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 const Index = () => {
+  const { user, loading } = useAuthContext();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
   return (
     <div className="min-h-screen bg-background relative flex flex-col">
       <DNAMatrix />
