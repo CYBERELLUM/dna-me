@@ -5,6 +5,7 @@ import { ChatInterface } from "@/components/research/ChatInterface";
 import { AIProviderConfig } from "@/components/research/AIProviderConfig";
 import Footer from "@/components/layout/Footer";
 import { Sparkles, Zap, Globe, Shield } from "lucide-react";
+import cyberellumLogo from "@/assets/cyberellum-logo.png";
 
 const Index = () => {
   return (
@@ -27,7 +28,7 @@ const Index = () => {
               
               {/* Logo */}
               <img 
-                src="/lovable-uploads/e4b5c419-5926-4f91-ac00-8c157e726863.png" 
+                src={cyberellumLogo} 
                 alt="Cyberellum Logo" 
                 className="w-28 h-28 object-contain logo-glow relative z-10"
               />
