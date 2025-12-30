@@ -1,5 +1,8 @@
-import { useState } from "react";
-import { ChevronDown, ChevronUp, Key, Server, Link2, Shield, Eye, EyeOff } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ChevronDown, ChevronUp, Key, Server, Link2, Shield, Eye, EyeOff, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 interface ProviderField {
   id: string;
@@ -95,11 +98,91 @@ const providers: Provider[] = [
 ];
 
 export const AIProviderConfig = () => {
+  const { user } = useAuth();
   const [expandedSection, setExpandedSection] = useState<string | null>("providers");
   const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
+  const [formValues, setFormValues] = useState<Record<string, string>>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load saved configurations on mount
+  useEffect(() => {
+    const loadConfigurations = async () => {
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from("api_configurations")
+          .select("*")
+          .eq("user_id", user.id);
+
+        if (error) throw error;
+
+        const values: Record<string, string> = {};
+        data?.forEach((config) => {
+          if (config.api_key_encrypted) {
+            values[`${config.provider}-api_key`] = config.api_key_encrypted;
+          }
+        });
+        setFormValues(values);
+      } catch (error) {
+        console.error("Error loading configurations:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadConfigurations();
+  }, [user]);
 
   const togglePassword = (fieldId: string) => {
     setShowPasswords((prev) => ({ ...prev, [fieldId]: !prev[fieldId] }));
+  };
+
+  const handleInputChange = (providerId: string, fieldId: string, value: string) => {
+    setFormValues((prev) => ({ ...prev, [`${providerId}-${fieldId}`]: value }));
+  };
+
+  const handleSave = async () => {
+    if (!user) {
+      toast.error("Please sign in to save configurations");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      // Get all providers with api_key fields that have values
+      const configurationsToSave = providers
+        .filter((provider) => {
+          const apiKeyField = provider.fields.find((f) => f.id === "api_key");
+          return apiKeyField && formValues[`${provider.id}-api_key`];
+        })
+        .map((provider) => ({
+          user_id: user.id,
+          provider: provider.id,
+          api_key_encrypted: formValues[`${provider.id}-api_key`],
+          is_enabled: true,
+        }));
+
+      // For each configuration, upsert (insert or update)
+      for (const config of configurationsToSave) {
+        const { error } = await supabase
+          .from("api_configurations")
+          .upsert(config, { onConflict: "user_id,provider" });
+
+        if (error) throw error;
+      }
+
+      toast.success("Configuration saved successfully");
+    } catch (error) {
+      console.error("Error saving configuration:", error);
+      toast.error("Failed to save configuration");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -153,6 +236,8 @@ export const AIProviderConfig = () => {
                         <input
                           type={showPasswords[`${provider.id}-${field.id}`] ? "text" : field.type}
                           placeholder={field.placeholder}
+                          value={formValues[`${provider.id}-${field.id}`] || ""}
+                          onChange={(e) => handleInputChange(provider.id, field.id, e.target.value)}
                           className="w-full input-scientific pr-10"
                         />
                         {field.type === "password" && (
@@ -266,9 +351,17 @@ export const AIProviderConfig = () => {
 
       {/* Save Button */}
       <div className="flex justify-end">
-        <button className="btn-primary flex items-center gap-2">
-          <Shield className="w-4 h-4" />
-          Save Configuration
+        <button 
+          onClick={handleSave}
+          disabled={isSaving || !user}
+          className="btn-primary flex items-center gap-2 disabled:opacity-50"
+        >
+          {isSaving ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Shield className="w-4 h-4" />
+          )}
+          {isSaving ? "Saving..." : "Save Configuration"}
         </button>
       </div>
     </div>
