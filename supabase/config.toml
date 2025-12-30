@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.nutrigenomics-forecast]
 verify_jwt = false
+
+[functions.send-nutrigenomics-report]
+verify_jwt = false

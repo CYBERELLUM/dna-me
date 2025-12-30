@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Slider } from "@/components/ui/slider";
 import NutrigenomicsChat from "@/components/research/NutrigenomicsChat";
 import CellularAging3D from "@/components/visualizations/CellularAging3D";
+import EmailReportDialog from "@/components/research/EmailReportDialog";
 import { NUTRIGENOMIC_COMPOUNDS, LONGEVITY_GENE_CLUSTERS } from "@/lib/api/ncbi";
 
 interface CellularAgingData {
@@ -147,7 +148,13 @@ const NutrigenomicsForecasting = () => {
                 <div className="flex items-center gap-2 mb-4">
                   <Sparkles className="w-5 h-5 text-accent" />
                   <h3 className="font-semibold text-foreground">Cellular Aging Visualization</h3>
-                  <span className="longevity-badge ml-auto">3D</span>
+                  <span className="longevity-badge ml-2">3D</span>
+                  <div className="ml-auto">
+                    <EmailReportDialog 
+                      cellularData={cellularData} 
+                      selectedCompound={selectedCompound} 
+                    />
+                  </div>
                 </div>
                 <Suspense fallback={
                   <div className="h-[400px] flex items-center justify-center">
