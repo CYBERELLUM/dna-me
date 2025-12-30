@@ -54,26 +54,45 @@ const Index = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Chat Interface */}
             <div className="lg:col-span-1">
-              {/* Logo above chat */}
-              <div className="flex items-center gap-4 mb-4">
-                <div className="relative flex items-center justify-center">
+              {/* Chat header above chat */}
+              <div className="mb-6 flex items-center gap-5 rounded-xl border border-border bg-secondary/40 px-4 py-4">
+                <div className="relative flex items-center justify-center shrink-0">
                   {/* Radar pulse rings */}
-                  <div className="absolute w-20 h-20 rounded-full border border-primary/30 animate-ping" style={{ animationDuration: '3s' }} />
-                  <div className="absolute w-16 h-16 rounded-full border border-primary/20 animate-ping" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
-                  
+                  <div
+                    className="absolute w-28 h-28 rounded-full border border-primary/25 animate-ping"
+                    style={{ animationDuration: "3s" }}
+                  />
+                  <div
+                    className="absolute w-24 h-24 rounded-full border border-primary/15 animate-ping"
+                    style={{ animationDuration: "2.5s", animationDelay: "0.5s" }}
+                  />
+                  <div
+                    className="absolute w-20 h-20 rounded-full border border-primary/10 animate-ping"
+                    style={{ animationDuration: "2s", animationDelay: "1s" }}
+                  />
+
                   {/* Glow background */}
-                  <div className="absolute w-14 h-14 bg-primary/10 rounded-full blur-2xl animate-pulse" />
-                  
+                  <div className="absolute w-24 h-24 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+
                   {/* Logo */}
-                  <img 
-                    src={cyberellumLogo} 
-                    alt="Cyberellum Logo" 
-                    className="w-12 h-12 object-contain logo-glow relative z-10"
+                  <img
+                    src={cyberellumLogo}
+                    alt="Research assistant emblem"
+                    loading="lazy"
+                    className="w-20 h-20 md:w-24 md:h-24 object-contain logo-glow relative z-10"
                   />
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-xs font-mono text-primary/70 uppercase tracking-widest">Cyberellum</span>
-                  <span className="text-sm font-semibold text-foreground">Technologies & Laboratory</span>
+
+                <div className="min-w-0">
+                  <p className="text-xs font-mono text-primary/80 uppercase tracking-[0.25em]">
+                    Research Chat
+                  </p>
+                  <h2 className="text-xl md:text-2xl font-semibold text-foreground leading-tight">
+                    Ask the Research Assistant
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    Multi-AI synthesis and citations when available
+                  </p>
                 </div>
               </div>
               <ChatInterface />
