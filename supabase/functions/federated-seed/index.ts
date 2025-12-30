@@ -70,6 +70,175 @@ const genomicsInsights = [
   }
 ];
 
+// Security patterns learned from satellite implementations
+const securityKnowledge = [
+  {
+    topic: "ip_rate_limiting",
+    title: "IP-Based Rate Limiting Pattern",
+    content: `Implement rate limiting at the IP level to prevent brute force attacks. Track login attempts per IP address with a sliding window (recommended: 10 attempts per 15 minutes). Auto-block IPs that exceed thresholds for 1 hour. Store attempts in a dedicated table with indexes on ip_address and created_at for efficient querying.`,
+    implementation: `CREATE TABLE login_attempts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT NOT NULL,
+  ip_address TEXT NOT NULL,
+  user_agent TEXT,
+  success BOOLEAN DEFAULT false,
+  failure_reason TEXT,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+CREATE INDEX idx_login_attempts_ip ON login_attempts(ip_address);
+CREATE INDEX idx_login_attempts_created_at ON login_attempts(created_at DESC);`,
+    keywords: ["rate limiting", "IP blocking", "brute force", "security", "authentication"],
+    category: "security_pattern",
+    satellite_origin: "cyberellum_research_platform",
+    confidence: 0.95
+  },
+  {
+    topic: "suspicious_login_detection",
+    title: "Suspicious Login Detection Algorithm",
+    content: `Implement risk scoring for login attempts based on multiple factors: new IP address (+20 points), rapid attempts >3/min (+30 points), missing/suspicious user agent (+15 points), bot-like user agent patterns (+40 points), multiple recent failures (+25 points). Flag logins with risk score ≥50 as suspicious and require additional verification or alert the user.`,
+    implementation: `CREATE FUNCTION detect_suspicious_login(p_email TEXT, p_ip_address TEXT, p_user_agent TEXT)
+RETURNS TABLE (is_suspicious BOOLEAN, suspicion_reason TEXT, risk_score INT)
+-- Check rapid-fire attempts (>3 in last minute): +30 points
+-- Check if new IP for this user: +20 points  
+-- Check missing/short user agent: +15 points
+-- Check bot patterns in user agent: +40 points
+-- Check multiple recent failures: +25 points
+-- Return suspicious if total >= 50`,
+    keywords: ["suspicious activity", "anomaly detection", "login security", "risk scoring", "fraud detection"],
+    category: "security_pattern",
+    satellite_origin: "cyberellum_research_platform",
+    confidence: 0.92
+  },
+  {
+    topic: "email_verification_flow",
+    title: "Email Verification Security Pattern",
+    content: `Require email confirmation before granting access to protect intellectual property and ensure identity verification. Disable auto_confirm_email in Supabase Auth settings. Implement a clear email verification UI flow that explains why verification is required (IP protection, data security). Store verification status and track confirmation timestamps for audit trails.`,
+    implementation: `-- Supabase Auth configuration
+supabase.auth.signUp({
+  email,
+  password,
+  options: {
+    emailRedirectTo: redirectUrl,
+    data: { display_name: displayName }
+  }
+});
+// Show email verification pending screen until confirmed`,
+    keywords: ["email verification", "identity verification", "signup security", "IP protection"],
+    category: "security_pattern",
+    satellite_origin: "cyberellum_research_platform",
+    confidence: 0.98
+  },
+  {
+    topic: "password_strength_requirements",
+    title: "Strong Password Validation Pattern",
+    content: `Enforce strong password requirements to protect accounts: minimum 12 characters, at least one uppercase letter, one lowercase letter, one number, and one special character. Use Zod schema validation for consistent enforcement across client and server. Display clear password requirements during signup.`,
+    implementation: `const passwordSchema = z.string()
+  .min(12, "Password must be at least 12 characters")
+  .regex(/[A-Z]/, "Must contain uppercase letter")
+  .regex(/[a-z]/, "Must contain lowercase letter")
+  .regex(/[0-9]/, "Must contain number")
+  .regex(/[^A-Za-z0-9]/, "Must contain special character");`,
+    keywords: ["password strength", "validation", "zod", "security requirements"],
+    category: "security_pattern",
+    satellite_origin: "cyberellum_research_platform",
+    confidence: 0.97
+  },
+  {
+    topic: "subscriber_data_isolation",
+    title: "RLS-Based Subscriber Data Isolation",
+    content: `Implement absolute data isolation between subscribers using Row Level Security (RLS). Every table containing user data must have RLS enabled with policies enforcing auth.uid() = user_id for all operations. Never use service role keys client-side. Audit RLS policies regularly to ensure no cross-subscriber data leakage.`,
+    implementation: `ALTER TABLE user_data ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can only view their own data"
+ON user_data FOR SELECT
+USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can only insert their own data"  
+ON user_data FOR INSERT
+WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can only update their own data"
+ON user_data FOR UPDATE
+USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can only delete their own data"
+ON user_data FOR DELETE
+USING (auth.uid() = user_id);`,
+    keywords: ["RLS", "row level security", "data isolation", "multi-tenant", "subscriber firewall"],
+    category: "security_pattern",
+    satellite_origin: "cyberellum_research_platform",
+    confidence: 0.99
+  },
+  {
+    topic: "mfa_totp_implementation",
+    title: "Multi-Factor Authentication with TOTP",
+    content: `Implement optional but encouraged TOTP-based MFA using authenticator apps (Google Authenticator, Authy). Offer MFA setup immediately after signup. Use Supabase Auth MFA APIs: mfa.enroll(), mfa.challengeAndVerify(), mfa.listFactors(). Track MFA enrollment status and prompt users without MFA periodically.`,
+    implementation: `// Enroll MFA
+const { data, error } = await supabase.auth.mfa.enroll({
+  factorType: 'totp',
+  friendlyName: 'Authenticator App'
+});
+
+// Verify MFA code
+const { data, error } = await supabase.auth.mfa.challengeAndVerify({
+  factorId,
+  code: userProvidedCode
+});`,
+    keywords: ["MFA", "TOTP", "two-factor", "authenticator", "security"],
+    category: "security_pattern",
+    satellite_origin: "cyberellum_research_platform",
+    confidence: 0.94
+  },
+  {
+    topic: "auto_block_policy",
+    title: "Automatic IP Blocking Policy",
+    content: `Implement automatic temporary IP blocking when abuse patterns are detected. After 10 failed login attempts from a single IP within 15 minutes, automatically block that IP for 1 hour. Store blocked IPs in a dedicated table with reason, blocked_until timestamp, and permanent flag. Check blocked_ips table before processing any authentication request.`,
+    implementation: `CREATE TABLE blocked_ips (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  ip_address TEXT NOT NULL UNIQUE,
+  reason TEXT NOT NULL,
+  blocked_until TIMESTAMPTZ,
+  permanent BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Auto-block after 10 failures
+INSERT INTO blocked_ips (ip_address, reason, blocked_until)
+VALUES (p_ip, 'Excessive failed attempts', now() + INTERVAL '1 hour')
+ON CONFLICT (ip_address) DO UPDATE 
+SET blocked_until = EXCLUDED.blocked_until;`,
+    keywords: ["IP blocking", "auto-block", "abuse prevention", "security automation"],
+    category: "security_pattern",
+    satellite_origin: "cyberellum_research_platform",
+    confidence: 0.93
+  },
+  {
+    topic: "audit_logging_pattern",
+    title: "Security Audit Logging Pattern",
+    content: `Log all security-relevant events for forensic analysis and compliance. Track: login attempts (success/failure), IP addresses, user agents, timestamps, rate limit triggers, suspicious activity flags. Automatically purge logs older than 30 days to manage storage while maintaining sufficient history for security investigations.`,
+    implementation: `CREATE FUNCTION log_login_attempt(
+  p_email TEXT,
+  p_ip_address TEXT,
+  p_user_agent TEXT,
+  p_success BOOLEAN,
+  p_failure_reason TEXT DEFAULT NULL
+) RETURNS UUID AS $$
+BEGIN
+  INSERT INTO login_attempts (...)
+  RETURNING id;
+  
+  -- Auto-cleanup old logs
+  DELETE FROM login_attempts 
+  WHERE created_at < now() - INTERVAL '30 days';
+END;
+$$;`,
+    keywords: ["audit logging", "security events", "forensics", "compliance", "monitoring"],
+    category: "security_pattern",
+    satellite_origin: "cyberellum_research_platform",
+    confidence: 0.96
+  }
+];
+
 const knowledgeBase = [
   {
     topic: "core_philosophy",
@@ -159,7 +328,8 @@ serve(async (req) => {
 
     const results = {
       genomics_insights: { inserted: 0, errors: [] as string[] },
-      knowledge_base: { inserted: 0, errors: [] as string[] }
+      knowledge_base: { inserted: 0, errors: [] as string[] },
+      security_knowledge: { inserted: 0, errors: [] as string[] }
     };
 
     // Seed genomics_insights
@@ -179,9 +349,11 @@ serve(async (req) => {
       }
     }
 
-    // Seed knowledge_base
-    console.log("[Federated Seed] Seeding knowledge_base with", knowledgeBase.length, "records");
-    for (const knowledge of knowledgeBase) {
+    // Seed knowledge_base (including general and security knowledge)
+    const allKnowledge = [...knowledgeBase, ...securityKnowledge];
+    console.log("[Federated Seed] Seeding knowledge_base with", allKnowledge.length, "records (including", securityKnowledge.length, "security patterns)");
+    
+    for (const knowledge of allKnowledge) {
       const { error } = await federatedClient.from("knowledge_base").insert({
         ...knowledge,
         created_at: new Date().toISOString(),
@@ -190,16 +362,25 @@ serve(async (req) => {
 
       if (error) {
         console.log("[Federated Seed] Error inserting knowledge:", error.message);
-        results.knowledge_base.errors.push(error.message);
+        if (knowledge.category === "security_pattern") {
+          results.security_knowledge.errors.push(error.message);
+        } else {
+          results.knowledge_base.errors.push(error.message);
+        }
       } else {
-        results.knowledge_base.inserted++;
+        if (knowledge.category === "security_pattern") {
+          results.security_knowledge.inserted++;
+        } else {
+          results.knowledge_base.inserted++;
+        }
       }
     }
 
-    const totalInserted = results.genomics_insights.inserted + results.knowledge_base.inserted;
-    const totalErrors = results.genomics_insights.errors.length + results.knowledge_base.errors.length;
+    const totalInserted = results.genomics_insights.inserted + results.knowledge_base.inserted + results.security_knowledge.inserted;
+    const totalErrors = results.genomics_insights.errors.length + results.knowledge_base.errors.length + results.security_knowledge.errors.length;
 
     console.log("[Federated Seed] Complete. Inserted:", totalInserted, "Errors:", totalErrors);
+    console.log("[Federated Seed] Security patterns shared:", results.security_knowledge.inserted);
 
     return new Response(
       JSON.stringify({
@@ -209,8 +390,9 @@ serve(async (req) => {
         summary: {
           totalInserted,
           totalErrors,
+          securityPatternsShared: results.security_knowledge.inserted,
           message: totalInserted > 0 
-            ? `Successfully seeded ${totalInserted} records to Federated Core`
+            ? `Successfully seeded ${totalInserted} records to Federated Core (${results.security_knowledge.inserted} security patterns from satellite)`
             : "No records inserted - tables may need to be created first"
         },
         timestamp: new Date().toISOString()
