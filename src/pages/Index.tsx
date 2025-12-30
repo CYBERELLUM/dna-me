@@ -87,10 +87,10 @@ const Index = () => {
                     Research Chat
                   </p>
                   <h2 className="text-xl md:text-2xl font-semibold text-foreground leading-tight">
-                    Ask the Research Assistant
+                    Multi-AI Synthesis
                   </h2>
                   <p className="text-sm text-muted-foreground">
-                    Multi-AI synthesis and citations when available
+                    Citations and sources when available
                   </p>
                 </div>
               </div>
