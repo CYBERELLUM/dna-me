@@ -13,9 +13,9 @@ serve(async (req) => {
   }
 
   try {
-    const { query, category } = await req.json();
+    const { action = "discover" } = await req.json();
 
-    console.log("[Federated Query] Incoming request:", { query, category });
+    console.log("[Federated Core] Request action:", action);
 
     // Get federated connection details
     const federatedUrl = Deno.env.get("FEDERATED_SUPABASE_URL");
@@ -23,12 +23,12 @@ serve(async (req) => {
     const syncKey = Deno.env.get("FEDERATED_SYNC_KEY");
 
     if (!federatedUrl || !federatedKey) {
-      console.log("[Federated Query] Missing federated credentials");
+      console.log("[Federated Core] Missing credentials");
       return new Response(
         JSON.stringify({
           success: false,
-          error: "Federated Core connection not configured",
-          knowledge: null,
+          message: "Federated Core connection not configured",
+          node: null,
         }),
         {
           status: 200,
@@ -37,7 +37,8 @@ serve(async (req) => {
       );
     }
 
-    console.log("[Federated Query] Connecting to Federated Core at:", federatedUrl);
+    const nodeId = federatedUrl.replace(/https?:\/\//, "").split(".")[0];
+    console.log("[Federated Core] Connected to node:", nodeId);
 
     // Create federated Supabase client
     const federatedClient = createClient(federatedUrl, federatedKey, {
@@ -48,104 +49,81 @@ serve(async (req) => {
       },
     });
 
-    // Query the federated knowledge base
-    // Try multiple potential table names for knowledge storage
-    let knowledge: any[] = [];
-    let source = "unknown";
+    // Discovery: Query the information_schema to see what tables exist
+    console.log("[Federated Core] Discovering available resources...");
 
-    // Try querying a knowledge_base table
-    const { data: kbData, error: kbError } = await federatedClient
-      .from("knowledge_base")
-      .select("*")
-      .textSearch("content", query || "", { type: "websearch" })
-      .limit(10);
-
-    if (!kbError && kbData && kbData.length > 0) {
-      knowledge = kbData;
-      source = "knowledge_base";
-      console.log("[Federated Query] Found knowledge in knowledge_base:", kbData.length, "records");
-    }
-
-    // If no results, try a research_data table
-    if (knowledge.length === 0) {
-      const { data: rdData, error: rdError } = await federatedClient
-        .from("research_data")
-        .select("*")
-        .limit(20);
-
-      if (!rdError && rdData && rdData.length > 0) {
-        knowledge = rdData;
-        source = "research_data";
-        console.log("[Federated Query] Found data in research_data:", rdData.length, "records");
-      }
-    }
-
-    // Try genomics_insights table
-    if (knowledge.length === 0) {
-      const { data: giData, error: giError } = await federatedClient
-        .from("genomics_insights")
-        .select("*")
-        .limit(20);
-
-      if (!giError && giData && giData.length > 0) {
-        knowledge = giData;
-        source = "genomics_insights";
-        console.log("[Federated Query] Found data in genomics_insights:", giData.length, "records");
-      }
-    }
-
-    // Try a general data or findings table
-    if (knowledge.length === 0) {
-      const { data: findingsData, error: findingsError } = await federatedClient
-        .from("findings")
-        .select("*")
-        .limit(20);
-
-      if (!findingsError && findingsData && findingsData.length > 0) {
-        knowledge = findingsData;
-        source = "findings";
-        console.log("[Federated Query] Found data in findings:", findingsData.length, "records");
-      }
-    }
-
-    // Get available tables for debugging
-    const { data: tablesData, error: tablesError } = await federatedClient
-      .rpc("get_tables")
-      .select("*");
+    // Try to get public tables using a direct query approach
+    const { data: schemaData, error: schemaError } = await federatedClient
+      .from("pg_catalog.pg_tables")
+      .select("tablename")
+      .eq("schemaname", "public");
 
     let availableTables: string[] = [];
-    if (!tablesError && tablesData) {
-      availableTables = tablesData;
-      console.log("[Federated Query] Available tables:", availableTables);
+    let discoveryMethod = "pg_tables";
+
+    if (schemaError) {
+      console.log("[Federated Core] pg_tables query error:", schemaError.message);
+      
+      // Fallback: Try common table names to see what responds
+      const commonTables = [
+        "knowledge_base", "research_data", "genomics_insights", "findings",
+        "articles", "publications", "data", "records", "content", "documents",
+        "profiles", "users", "settings", "config"
+      ];
+
+      discoveryMethod = "probe";
+      for (const tableName of commonTables) {
+        const { error } = await federatedClient
+          .from(tableName)
+          .select("*", { count: "exact", head: true });
+        
+        if (!error) {
+          availableTables.push(tableName);
+          console.log("[Federated Core] Found table:", tableName);
+        }
+      }
+    } else if (schemaData) {
+      availableTables = schemaData.map((t: any) => t.tablename);
+      console.log("[Federated Core] Discovered tables:", availableTables);
     }
 
-    // Return results
+    // Build response about what the Federated Core knows
     const response = {
       success: true,
-      query,
-      source,
-      knowledge,
-      availableTables,
-      federatedNode: federatedUrl.replace(/https?:\/\//, "").split(".")[0],
+      node: {
+        id: nodeId,
+        url: federatedUrl,
+        syncKey: syncKey ? "configured" : "not configured",
+      },
+      discovery: {
+        method: discoveryMethod,
+        tablesFound: availableTables.length,
+        tables: availableTables,
+      },
+      status: availableTables.length > 0 
+        ? `Federated Core has ${availableTables.length} accessible tables` 
+        : "Federated Core is connected but has no public knowledge tables yet. It was just synchronized and awaits knowledge population.",
+      message: availableTables.length > 0
+        ? `Available resources: ${availableTables.join(", ")}`
+        : "The Federated Core node is active and ready to receive knowledge. No data tables have been created yet.",
       timestamp: new Date().toISOString(),
-      recordCount: knowledge.length,
     };
 
-    console.log("[Federated Query] Returning response with", knowledge.length, "records from", source);
+    console.log("[Federated Core] Discovery complete:", response.status);
 
     return new Response(JSON.stringify(response), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("[Federated Query] Error:", error);
+    console.error("[Federated Core] Error:", error);
     const errorMessage = error instanceof Error ? error.message : "Failed to query Federated Core";
 
     return new Response(
       JSON.stringify({
         success: false,
-        error: errorMessage,
-        knowledge: null,
+        message: errorMessage,
+        node: null,
       }),
       {
         status: 500,
