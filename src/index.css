@@ -2,65 +2,76 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 @layer base {
   :root {
-    --background: 220 20% 6%;
-    --foreground: 180 10% 92%;
+    /* Culminate H Labs Longevity Theme - Dark with Red accents */
+    --background: 0 0% 4%;
+    --foreground: 0 0% 95%;
 
-    --card: 220 18% 10%;
-    --card-foreground: 180 10% 92%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 220 18% 10%;
-    --popover-foreground: 180 10% 92%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 175 80% 50%;
-    --primary-foreground: 220 20% 6%;
+    /* Vibrant red primary - Longevity/Life force */
+    --primary: 0 85% 55%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 15% 15%;
-    --secondary-foreground: 180 10% 85%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 85%;
 
-    --muted: 220 15% 18%;
-    --muted-foreground: 220 10% 55%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 55%;
 
-    --accent: 280 60% 55%;
-    --accent-foreground: 180 10% 95%;
+    /* Gold accent - Wisdom/Achievement */
+    --accent: 45 90% 55%;
+    --accent-foreground: 0 0% 5%;
+
+    /* Teal for DNA/Science elements */
+    --science: 175 70% 45%;
+    --science-foreground: 0 0% 5%;
 
     --destructive: 0 70% 50%;
-    --destructive-foreground: 180 10% 95%;
+    --destructive-foreground: 0 0% 95%;
 
-    --border: 220 15% 20%;
-    --input: 220 15% 15%;
-    --ring: 175 80% 50%;
+    --border: 0 0% 18%;
+    --input: 0 0% 12%;
+    --ring: 0 85% 55%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    /* Custom scientific theme tokens */
-    --glow-primary: 175 80% 50%;
-    --glow-accent: 280 60% 55%;
-    --glass: 220 18% 12%;
-    --glass-border: 220 15% 25%;
+    /* Custom longevity theme tokens */
+    --glow-primary: 0 85% 55%;
+    --glow-accent: 45 90% 55%;
+    --glow-science: 175 70% 45%;
+    --glass: 0 0% 10%;
+    --glass-border: 0 0% 20%;
     
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(175 80% 50%), hsl(185 70% 40%));
-    --gradient-accent: linear-gradient(135deg, hsl(280 60% 55%), hsl(320 60% 45%));
-    --gradient-dark: linear-gradient(180deg, hsl(220 20% 8%), hsl(220 20% 4%));
-    --gradient-glass: linear-gradient(135deg, hsl(220 18% 14% / 0.8), hsl(220 18% 10% / 0.6));
+    --gradient-primary: linear-gradient(135deg, hsl(0 85% 55%), hsl(15 80% 50%));
+    --gradient-accent: linear-gradient(135deg, hsl(45 90% 55%), hsl(35 85% 50%));
+    --gradient-science: linear-gradient(135deg, hsl(175 70% 45%), hsl(185 65% 40%));
+    --gradient-dark: linear-gradient(180deg, hsl(0 0% 6%), hsl(0 0% 2%));
+    --gradient-glass: linear-gradient(135deg, hsl(0 0% 12% / 0.8), hsl(0 0% 8% / 0.6));
+    --gradient-longevity: linear-gradient(135deg, hsl(0 85% 55% / 0.2), hsl(45 90% 55% / 0.1));
     
     /* Shadows */
-    --shadow-glow: 0 0 30px hsl(175 80% 50% / 0.3);
-    --shadow-glow-accent: 0 0 30px hsl(280 60% 55% / 0.3);
-    --shadow-card: 0 8px 32px hsl(220 20% 4% / 0.6);
+    --shadow-glow: 0 0 30px hsl(0 85% 55% / 0.4);
+    --shadow-glow-accent: 0 0 30px hsl(45 90% 55% / 0.3);
+    --shadow-glow-science: 0 0 30px hsl(175 70% 45% / 0.3);
+    --shadow-card: 0 8px 32px hsl(0 0% 0% / 0.6);
 
-    --sidebar-background: 220 18% 8%;
-    --sidebar-foreground: 180 10% 92%;
-    --sidebar-primary: 175 80% 50%;
-    --sidebar-primary-foreground: 220 20% 6%;
-    --sidebar-accent: 220 15% 15%;
-    --sidebar-accent-foreground: 180 10% 92%;
-    --sidebar-border: 220 15% 20%;
-    --sidebar-ring: 175 80% 50%;
+    --sidebar-background: 0 0% 6%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 0 85% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 12%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 0 85% 55%;
   }
 }
 
@@ -70,8 +81,8 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', sans-serif;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Outfit', sans-serif;
   }
 
   .font-mono {
@@ -89,6 +100,12 @@
     @apply relative;
     box-shadow: inset 0 1px 0 0 hsl(var(--glow-primary) / 0.1),
                 0 0 20px hsl(var(--glow-primary) / 0.1);
+  }
+
+  .glow-border-science {
+    @apply relative;
+    box-shadow: inset 0 1px 0 0 hsl(var(--glow-science) / 0.1),
+                0 0 20px hsl(var(--glow-science) / 0.1);
   }
 
   .glow-text {
@@ -112,7 +129,7 @@
   }
 
   .btn-primary {
-    @apply bg-primary text-primary-foreground font-medium px-6 py-3 rounded-md;
+    @apply bg-primary text-primary-foreground font-semibold px-6 py-3 rounded-md;
     @apply hover:bg-primary/90 transition-all duration-300;
     @apply shadow-lg hover:shadow-glow;
   }
@@ -122,9 +139,29 @@
     @apply border border-border hover:border-primary/50 transition-all duration-300;
   }
 
+  .btn-science {
+    @apply font-medium px-6 py-3 rounded-md transition-all duration-300;
+    background: hsl(var(--science));
+    color: hsl(var(--science-foreground));
+    @apply hover:opacity-90;
+    box-shadow: 0 0 20px hsl(var(--glow-science) / 0.3);
+  }
+
   .card-scientific {
     @apply glass-panel p-6 glow-border transition-all duration-300;
     @apply hover:border-primary/30;
+  }
+
+  .card-longevity {
+    @apply glass-panel p-6 transition-all duration-300 relative overflow-hidden;
+    @apply hover:border-primary/40;
+    background: linear-gradient(135deg, hsl(0 0% 10% / 0.9), hsl(0 0% 6% / 0.8));
+  }
+
+  .card-longevity::before {
+    content: '';
+    @apply absolute top-0 left-0 right-0 h-1;
+    background: var(--gradient-primary);
   }
 
   .nav-link {
@@ -143,12 +180,27 @@
     animation: pulse-glow 2s ease-in-out infinite;
   }
 
+  .pulse-dot-science {
+    @apply w-2 h-2 rounded-full;
+    background: hsl(var(--science));
+    animation: pulse-glow-science 2s ease-in-out infinite;
+  }
+
   @keyframes pulse-glow {
     0%, 100% {
       box-shadow: 0 0 0 0 hsl(var(--primary) / 0.7);
     }
     50% {
       box-shadow: 0 0 0 8px hsl(var(--primary) / 0);
+    }
+  }
+
+  @keyframes pulse-glow-science {
+    0%, 100% {
+      box-shadow: 0 0 0 0 hsl(var(--science) / 0.7);
+    }
+    50% {
+      box-shadow: 0 0 0 8px hsl(var(--science) / 0);
     }
   }
 
@@ -249,7 +301,7 @@
 
   .dna-matrix-container {
     @apply fixed inset-0 overflow-hidden pointer-events-none z-0;
-    opacity: 0.15;
+    opacity: 0.12;
   }
 
   .dna-matrix-column {
@@ -301,6 +353,62 @@
     @apply leading-tight;
     letter-spacing: 0.05em;
   }
+
+  /* Longevity-specific animations */
+  @keyframes methylation-pulse {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
+  }
+
+  .methylation-glow {
+    animation: methylation-pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes age-reversal {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .age-reversal-gradient {
+    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--science)), hsl(var(--primary)));
+    background-size: 300% 100%;
+    animation: age-reversal 4s ease-in-out infinite;
+  }
+
+  /* Epigenetic marker badge */
+  .epigenetic-badge {
+    @apply px-3 py-1 rounded-full text-xs font-mono font-semibold;
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--accent) / 0.1));
+    border: 1px solid hsl(var(--primary) / 0.3);
+    color: hsl(var(--primary));
+  }
+
+  .longevity-badge {
+    @apply px-3 py-1 rounded-full text-xs font-mono font-semibold;
+    background: linear-gradient(135deg, hsl(var(--accent) / 0.2), hsl(var(--accent) / 0.1));
+    border: 1px solid hsl(var(--accent) / 0.3);
+    color: hsl(var(--accent));
+  }
+
+  .nutrigenomics-badge {
+    @apply px-3 py-1 rounded-full text-xs font-mono font-semibold;
+    background: linear-gradient(135deg, hsl(var(--science) / 0.2), hsl(var(--science) / 0.1));
+    border: 1px solid hsl(var(--science) / 0.3);
+    color: hsl(var(--science));
+  }
 }
 
 @layer utilities {
@@ -313,6 +421,20 @@
 
   .text-gradient-accent {
     background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-science {
+    background: var(--gradient-science);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-longevity {
+    background: linear-gradient(135deg, hsl(0 85% 55%), hsl(45 90% 55%));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;

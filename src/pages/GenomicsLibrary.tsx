@@ -3,21 +3,27 @@ import { DNAMatrix } from "@/components/layout/DNAMatrix";
 import { ParallaxSection } from "@/components/layout/ParallaxSection";
 import { 
   ExternalLink, Calendar, Users, BookOpen, Search, Dna, 
-  FileText, Database, Loader2, AlertCircle, RefreshCw, Heart
+  FileText, Database, Loader2, AlertCircle, RefreshCw, Heart,
+  FlaskConical, Sparkles, Leaf, Clock, Zap
 } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { searchPubMed, searchGenes, searchSequences, type PubMedArticle, type GeneInfo, type SequenceInfo } from "@/lib/api/ncbi";
+import { 
+  searchPubMed, searchGenes, searchSequences, 
+  searchEpigenetics, searchLongevityGenes, searchNutrigenomics, searchCellularAging,
+  LONGEVITY_GENE_CLUSTERS, NUTRIGENOMIC_COMPOUNDS,
+  type PubMedArticle, type GeneInfo, type SequenceInfo 
+} from "@/lib/api/ncbi";
 import { useSavedItems } from "@/hooks/useSavedItems";
 import { useAuth } from "@/hooks/useAuth";
 
 const GenomicsLibrary = () => {
-  const [searchTerm, setSearchTerm] = useState("CRISPR");
-  const [activeTab, setActiveTab] = useState("publications");
-  const [searchQuery, setSearchQuery] = useState("CRISPR");
+  const [searchTerm, setSearchTerm] = useState("longevity");
+  const [activeTab, setActiveTab] = useState("epigenetics");
+  const [searchQuery, setSearchQuery] = useState("longevity");
   const { user } = useAuth();
   const { isItemSaved, toggleSave } = useSavedItems();
 
@@ -32,6 +38,38 @@ const GenomicsLibrary = () => {
       handleSearch();
     }
   };
+
+  // Epigenetics research query
+  const { data: epigeneticsArticles = [], isLoading: epigeneticsLoading, error: epigeneticsError, refetch: refetchEpigenetics } = useQuery({
+    queryKey: ['epigenetics', searchQuery],
+    queryFn: () => searchEpigenetics(searchQuery, 12),
+    staleTime: 5 * 60 * 1000,
+    enabled: activeTab === 'epigenetics',
+  });
+
+  // Longevity genes query
+  const { data: longevityGenes = [], isLoading: longevityLoading, error: longevityError, refetch: refetchLongevity } = useQuery({
+    queryKey: ['longevity-genes', searchQuery],
+    queryFn: () => searchLongevityGenes(searchQuery, 12),
+    staleTime: 5 * 60 * 1000,
+    enabled: activeTab === 'longevity',
+  });
+
+  // Nutrigenomics query
+  const { data: nutrigenomicsArticles = [], isLoading: nutrigenomicsLoading, error: nutrigenomicsError, refetch: refetchNutrigenomics } = useQuery({
+    queryKey: ['nutrigenomics', searchQuery],
+    queryFn: () => searchNutrigenomics(searchQuery, 12),
+    staleTime: 5 * 60 * 1000,
+    enabled: activeTab === 'nutrigenomics',
+  });
+
+  // Cellular aging query
+  const { data: cellularAgingArticles = [], isLoading: cellularLoading, error: cellularError, refetch: refetchCellular } = useQuery({
+    queryKey: ['cellular-aging', searchQuery],
+    queryFn: () => searchCellularAging(searchQuery, 12),
+    staleTime: 5 * 60 * 1000,
+    enabled: activeTab === 'cellular',
+  });
 
   // PubMed articles query
   const { data: articles = [], isLoading: articlesLoading, error: articlesError, refetch: refetchArticles } = useQuery({
@@ -59,16 +97,28 @@ const GenomicsLibrary = () => {
 
   const isLoading = (activeTab === 'publications' && articlesLoading) ||
                     (activeTab === 'genes' && genesLoading) ||
-                    (activeTab === 'sequences' && sequencesLoading);
+                    (activeTab === 'sequences' && sequencesLoading) ||
+                    (activeTab === 'epigenetics' && epigeneticsLoading) ||
+                    (activeTab === 'longevity' && longevityLoading) ||
+                    (activeTab === 'nutrigenomics' && nutrigenomicsLoading) ||
+                    (activeTab === 'cellular' && cellularLoading);
 
   const hasError = (activeTab === 'publications' && articlesError) ||
                    (activeTab === 'genes' && genesError) ||
-                   (activeTab === 'sequences' && sequencesError);
+                   (activeTab === 'sequences' && sequencesError) ||
+                   (activeTab === 'epigenetics' && epigeneticsError) ||
+                   (activeTab === 'longevity' && longevityError) ||
+                   (activeTab === 'nutrigenomics' && nutrigenomicsError) ||
+                   (activeTab === 'cellular' && cellularError);
 
   const handleRefetch = () => {
     if (activeTab === 'publications') refetchArticles();
     else if (activeTab === 'genes') refetchGenes();
-    else refetchSequences();
+    else if (activeTab === 'sequences') refetchSequences();
+    else if (activeTab === 'epigenetics') refetchEpigenetics();
+    else if (activeTab === 'longevity') refetchLongevity();
+    else if (activeTab === 'nutrigenomics') refetchNutrigenomics();
+    else if (activeTab === 'cellular') refetchCellular();
   };
 
   return (
@@ -81,17 +131,40 @@ const GenomicsLibrary = () => {
           {/* Header */}
           <div className="text-center mb-12 animate-fade-in">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/30 rounded-full mb-6">
-              <Database className="w-4 h-4 text-primary" />
-              <span className="text-sm font-mono text-primary">NCBI Database Integration</span>
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span className="text-sm font-mono text-primary">LONGEVITY BIOTECH RESEARCH</span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-              Genomics <span className="text-gradient-primary">Library</span>
+              Genomics <span className="text-gradient-longevity">Library</span>
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Search NCBI databases for peer-reviewed publications, gene information, 
-              and nucleotide sequences in real-time.
-              {user && " Click the heart icon to save items to your library."}
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              Explore cutting-edge research in epigenetics, DNA methylation, cellular aging, 
+              and nutrigenomics. Powered by NCBI databases for real-time scientific insights.
+              {user && " Save items to your personal library."}
             </p>
+          </div>
+
+          {/* Longevity Gene Clusters Quick Access */}
+          <div className="mb-8">
+            <h3 className="text-sm font-semibold text-muted-foreground mb-3 flex items-center gap-2">
+              <Zap className="w-4 h-4 text-accent" />
+              QUICK ACCESS: LONGEVITY GENE CLUSTERS
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {LONGEVITY_GENE_CLUSTERS.slice(0, 5).map((cluster) => (
+                <button
+                  key={cluster.cluster}
+                  onClick={() => {
+                    setSearchTerm(cluster.genes[0]);
+                    setSearchQuery(cluster.genes[0]);
+                    setActiveTab('longevity');
+                  }}
+                  className="px-3 py-1.5 bg-secondary/50 border border-border hover:border-primary/50 rounded-full text-sm text-foreground transition-all hover:bg-primary/10"
+                >
+                  {cluster.cluster}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Search Bar */}
@@ -100,7 +173,7 @@ const GenomicsLibrary = () => {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Search genes, sequences, publications..."
+                placeholder="Search longevity genes, epigenetics, nutrients..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyDown={handleKeyDown}
@@ -117,13 +190,29 @@ const GenomicsLibrary = () => {
               ) : (
                 <Search className="w-4 h-4 mr-2" />
               )}
-              Search NCBI
+              Search
             </Button>
           </div>
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full max-w-lg mx-auto grid-cols-3 mb-8">
+            <TabsList className="flex flex-wrap justify-center gap-1 mb-8 bg-transparent h-auto p-0">
+              <TabsTrigger value="epigenetics" className="flex items-center gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
+                <FlaskConical className="w-4 h-4" />
+                <span className="hidden sm:inline">Epigenetics</span>
+              </TabsTrigger>
+              <TabsTrigger value="longevity" className="flex items-center gap-2 data-[state=active]:bg-accent/20 data-[state=active]:text-accent">
+                <Clock className="w-4 h-4" />
+                <span className="hidden sm:inline">Longevity Genes</span>
+              </TabsTrigger>
+              <TabsTrigger value="nutrigenomics" className="flex items-center gap-2 data-[state=active]:bg-science/20 data-[state=active]:text-science">
+                <Leaf className="w-4 h-4" />
+                <span className="hidden sm:inline">Nutrigenomics</span>
+              </TabsTrigger>
+              <TabsTrigger value="cellular" className="flex items-center gap-2 data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
+                <Sparkles className="w-4 h-4" />
+                <span className="hidden sm:inline">Cellular Aging</span>
+              </TabsTrigger>
               <TabsTrigger value="publications" className="flex items-center gap-2">
                 <BookOpen className="w-4 h-4" />
                 <span className="hidden sm:inline">Publications</span>
@@ -142,7 +231,7 @@ const GenomicsLibrary = () => {
             {isLoading && (
               <div className="flex flex-col items-center justify-center py-20">
                 <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
-                <p className="text-muted-foreground font-mono">Querying NCBI databases...</p>
+                <p className="text-muted-foreground font-mono">Querying research databases...</p>
               </div>
             )}
 
@@ -150,13 +239,175 @@ const GenomicsLibrary = () => {
             {hasError && !isLoading && (
               <div className="flex flex-col items-center justify-center py-20">
                 <AlertCircle className="w-12 h-12 text-destructive mb-4" />
-                <p className="text-muted-foreground mb-4">Failed to fetch data from NCBI</p>
+                <p className="text-muted-foreground mb-4">Failed to fetch data</p>
                 <Button variant="outline" onClick={handleRefetch}>
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Try Again
                 </Button>
               </div>
             )}
+
+            {/* Epigenetics Tab */}
+            <TabsContent value="epigenetics">
+              {!isLoading && !hasError && (
+                <>
+                  <div className="text-sm text-muted-foreground mb-4 font-mono flex items-center gap-2">
+                    <span className="epigenetic-badge">EPIGENETICS</span>
+                    Found {epigeneticsArticles.length} studies for "{searchQuery}"
+                  </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {epigeneticsArticles.map((article: PubMedArticle, index: number) => (
+                      <ArticleCard 
+                        key={article.id} 
+                        article={article} 
+                        index={index}
+                        isSaved={isItemSaved("publication", article.pmid)}
+                        onToggleSave={() => toggleSave("publication", article.pmid, article)}
+                        showSaveButton={!!user}
+                        badgeType="epigenetic"
+                      />
+                    ))}
+                  </div>
+                  {epigeneticsArticles.length === 0 && (
+                    <EmptyState message="No epigenetics studies found. Try searching for methylation, histone, or chromatin." />
+                  )}
+                </>
+              )}
+            </TabsContent>
+
+            {/* Longevity Genes Tab */}
+            <TabsContent value="longevity">
+              {!isLoading && !hasError && (
+                <>
+                  {/* Gene Clusters Reference */}
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <Clock className="w-5 h-5 text-accent" />
+                      Longevity Gene Clusters
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {LONGEVITY_GENE_CLUSTERS.map((cluster) => (
+                        <div key={cluster.cluster} className="card-longevity">
+                          <h4 className="font-semibold text-foreground mb-2">{cluster.cluster}</h4>
+                          <p className="text-xs text-muted-foreground mb-3">{cluster.description}</p>
+                          <div className="flex flex-wrap gap-1">
+                            {cluster.genes.map((gene) => (
+                              <button
+                                key={gene}
+                                onClick={() => {
+                                  setSearchTerm(gene);
+                                  setSearchQuery(gene);
+                                }}
+                                className="longevity-badge hover:opacity-80 transition-opacity cursor-pointer"
+                              >
+                                {gene}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="text-sm text-muted-foreground mb-4 font-mono flex items-center gap-2">
+                    <span className="longevity-badge">LONGEVITY</span>
+                    Found {longevityGenes.length} genes for "{searchQuery}"
+                  </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {longevityGenes.map((gene: GeneInfo, index: number) => (
+                      <GeneCard 
+                        key={gene.id} 
+                        gene={gene} 
+                        index={index}
+                        isSaved={isItemSaved("gene", gene.id)}
+                        onToggleSave={() => toggleSave("gene", gene.id, gene)}
+                        showSaveButton={!!user}
+                        badgeType="longevity"
+                      />
+                    ))}
+                  </div>
+                  {longevityGenes.length === 0 && (
+                    <EmptyState message="No longevity genes found. Try SIRT1, FOXO3, or TERT." />
+                  )}
+                </>
+              )}
+            </TabsContent>
+
+            {/* Nutrigenomics Tab */}
+            <TabsContent value="nutrigenomics">
+              {!isLoading && !hasError && (
+                <>
+                  {/* Key Nutrigenomic Compounds */}
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <Leaf className="w-5 h-5 text-science" />
+                      Key Nutrigenomic Compounds
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {NUTRIGENOMIC_COMPOUNDS.map((compound) => (
+                        <div key={compound.name} className="card-scientific glow-border-science">
+                          <div className="flex items-start justify-between mb-2">
+                            <h4 className="font-semibold text-foreground">{compound.name}</h4>
+                            <span className="nutrigenomics-badge">{compound.target}</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-2">{compound.effect}</p>
+                          <p className="text-xs text-science">Sources: {compound.sources}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="text-sm text-muted-foreground mb-4 font-mono flex items-center gap-2">
+                    <span className="nutrigenomics-badge">NUTRIGENOMICS</span>
+                    Found {nutrigenomicsArticles.length} studies for "{searchQuery}"
+                  </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {nutrigenomicsArticles.map((article: PubMedArticle, index: number) => (
+                      <ArticleCard 
+                        key={article.id} 
+                        article={article} 
+                        index={index}
+                        isSaved={isItemSaved("publication", article.pmid)}
+                        onToggleSave={() => toggleSave("publication", article.pmid, article)}
+                        showSaveButton={!!user}
+                        badgeType="nutrigenomics"
+                      />
+                    ))}
+                  </div>
+                  {nutrigenomicsArticles.length === 0 && (
+                    <EmptyState message="No nutrigenomics studies found. Try resveratrol, NAD+, or sulforaphane." />
+                  )}
+                </>
+              )}
+            </TabsContent>
+
+            {/* Cellular Aging Tab */}
+            <TabsContent value="cellular">
+              {!isLoading && !hasError && (
+                <>
+                  <div className="text-sm text-muted-foreground mb-4 font-mono flex items-center gap-2">
+                    <span className="epigenetic-badge">CELLULAR AGING</span>
+                    Found {cellularAgingArticles.length} studies for "{searchQuery}"
+                  </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {cellularAgingArticles.map((article: PubMedArticle, index: number) => (
+                      <ArticleCard 
+                        key={article.id} 
+                        article={article} 
+                        index={index}
+                        isSaved={isItemSaved("publication", article.pmid)}
+                        onToggleSave={() => toggleSave("publication", article.pmid, article)}
+                        showSaveButton={!!user}
+                        badgeType="epigenetic"
+                      />
+                    ))}
+                  </div>
+                  {cellularAgingArticles.length === 0 && (
+                    <EmptyState message="No cellular aging studies found. Try senescence, telomere, or autophagy." />
+                  )}
+                </>
+              )}
+            </TabsContent>
 
             {/* Publications Tab */}
             <TabsContent value="publications">
@@ -240,7 +491,10 @@ const GenomicsLibrary = () => {
           {/* Attribution */}
           <div className="mt-12 text-center">
             <p className="text-xs text-muted-foreground font-mono">
-              Data sourced from NCBI (National Center for Biotechnology Information) via E-utilities API
+              Research data sourced from NCBI (National Center for Biotechnology Information) via E-utilities API
+            </p>
+            <p className="text-xs text-muted-foreground font-mono mt-1">
+              Optimized for Longevity Biotech & Precision Nutrition Research
             </p>
           </div>
         </div>
@@ -259,8 +513,8 @@ const SaveButton = ({ isSaved, onToggle }: { isSaved: boolean; onToggle: () => v
     }}
     className={`p-2 rounded-md transition-all ${
       isSaved 
-        ? "text-red-500 bg-red-500/10 hover:bg-red-500/20" 
-        : "text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
+        ? "text-primary bg-primary/10 hover:bg-primary/20" 
+        : "text-muted-foreground hover:text-primary hover:bg-primary/10"
     }`}
     title={isSaved ? "Remove from library" : "Save to library"}
   >
@@ -274,60 +528,69 @@ const ArticleCard = ({
   index, 
   isSaved, 
   onToggleSave,
-  showSaveButton 
+  showSaveButton,
+  badgeType
 }: { 
   article: PubMedArticle; 
   index: number;
   isSaved: boolean;
   onToggleSave: () => void;
   showSaveButton: boolean;
-}) => (
-  <article
-    className="card-scientific group animate-fade-in"
-    style={{ animationDelay: `${index * 50}ms` }}
-  >
-    <div className="flex items-start justify-between mb-3">
-      <span className="px-3 py-1 bg-primary/10 text-primary text-xs font-mono rounded">
-        PMID: {article.pmid}
-      </span>
-      <div className="flex items-center gap-2">
-        {showSaveButton && <SaveButton isSaved={isSaved} onToggle={onToggleSave} />}
-        <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
-          <Calendar className="w-3 h-3" />
-          {article.year}
+  badgeType?: 'epigenetic' | 'longevity' | 'nutrigenomics';
+}) => {
+  const badgeClass = badgeType === 'epigenetic' ? 'epigenetic-badge' 
+    : badgeType === 'longevity' ? 'longevity-badge' 
+    : badgeType === 'nutrigenomics' ? 'nutrigenomics-badge'
+    : 'px-3 py-1 bg-primary/10 text-primary text-xs font-mono rounded';
+
+  return (
+    <article
+      className="card-scientific group animate-fade-in"
+      style={{ animationDelay: `${index * 50}ms` }}
+    >
+      <div className="flex items-start justify-between mb-3">
+        <span className={badgeClass}>
+          PMID: {article.pmid}
+        </span>
+        <div className="flex items-center gap-2">
+          {showSaveButton && <SaveButton isSaved={isSaved} onToggle={onToggleSave} />}
+          <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
+            <Calendar className="w-3 h-3" />
+            {article.year}
+          </div>
         </div>
       </div>
-    </div>
 
-    <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
-      {article.title}
-    </h3>
+      <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">
+        {article.title}
+      </h3>
 
-    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-      <Users className="w-4 h-4 flex-shrink-0" />
-      <span className="truncate">{article.authors}</span>
-    </div>
+      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+        <Users className="w-4 h-4 flex-shrink-0" />
+        <span className="truncate">{article.authors}</span>
+      </div>
 
-    <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
-      {article.abstract}
-    </p>
+      <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+        {article.abstract}
+      </p>
 
-    <div className="flex items-center justify-between pt-4 border-t border-border">
-      <span className="text-xs text-muted-foreground font-mono truncate max-w-[200px]">
-        {article.journal}
-      </span>
-      <a
-        href={`https://pubmed.ncbi.nlm.nih.gov/${article.pmid}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-1 text-primary hover:text-primary/80 text-sm font-medium transition-colors"
-      >
-        View on PubMed
-        <ExternalLink className="w-4 h-4" />
-      </a>
-    </div>
-  </article>
-);
+      <div className="flex items-center justify-between pt-4 border-t border-border">
+        <span className="text-xs text-muted-foreground font-mono truncate max-w-[200px]">
+          {article.journal}
+        </span>
+        <a
+          href={`https://pubmed.ncbi.nlm.nih.gov/${article.pmid}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1 text-primary hover:text-primary/80 text-sm font-medium transition-colors"
+        >
+          View on PubMed
+          <ExternalLink className="w-4 h-4" />
+        </a>
+      </div>
+    </article>
+  );
+};
 
 // Gene Card Component
 const GeneCard = ({ 
@@ -335,20 +598,22 @@ const GeneCard = ({
   index,
   isSaved,
   onToggleSave,
-  showSaveButton
+  showSaveButton,
+  badgeType
 }: { 
   gene: GeneInfo; 
   index: number;
   isSaved: boolean;
   onToggleSave: () => void;
   showSaveButton: boolean;
+  badgeType?: 'longevity';
 }) => (
   <article
-    className="card-scientific group animate-fade-in"
+    className={`group animate-fade-in ${badgeType === 'longevity' ? 'card-longevity' : 'card-scientific'}`}
     style={{ animationDelay: `${index * 50}ms` }}
   >
     <div className="flex items-start justify-between mb-3">
-      <span className="px-3 py-1 bg-accent/20 text-accent text-xs font-mono rounded font-bold">
+      <span className={badgeType === 'longevity' ? 'longevity-badge font-bold' : 'px-3 py-1 bg-accent/20 text-accent text-xs font-mono rounded font-bold'}>
         {gene.symbol}
       </span>
       <div className="flex items-center gap-2">

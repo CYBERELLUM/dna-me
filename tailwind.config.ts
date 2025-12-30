@@ -58,6 +58,11 @@ export default {
         glow: {
           primary: "hsl(var(--glow-primary))",
           accent: "hsl(var(--glow-accent))",
+          science: "hsl(var(--glow-science))",
+        },
+        science: {
+          DEFAULT: "hsl(var(--science))",
+          foreground: "hsl(var(--science-foreground))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
