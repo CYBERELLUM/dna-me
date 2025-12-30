@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Navigation } from "@/components/layout/Navigation";
 import Footer from "@/components/layout/Footer";
 import PageBreadcrumb from "@/components/layout/PageBreadcrumb";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthContext } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,13 +21,37 @@ import {
   Shield,
   Mail,
   Key,
-  CheckCircle2
+  CheckCircle2,
+  Smartphone,
+  Monitor,
+  Trash2,
+  QrCode,
+  ShieldCheck,
+  ShieldOff
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+interface MFAFactor {
+  id: string;
+  friendly_name: string | null;
+  factor_type: string;
+  status: string;
+}
 
 const Settings = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, enrollMFA, verifyMFA, unenrollMFA, listMFAFactors } = useAuthContext();
   const [displayName, setDisplayName] = useState("");
   const [institution, setInstitution] = useState("");
   const [saving, setSaving] = useState(false);
@@ -46,10 +70,21 @@ const Settings = () => {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [verificationLoading, setVerificationLoading] = useState(false);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
+  
+  // MFA state
+  const [mfaFactors, setMfaFactors] = useState<MFAFactor[]>([]);
+  const [mfaLoading, setMfaLoading] = useState(false);
+  const [showMFASetup, setShowMFASetup] = useState(false);
+  const [mfaQrCode, setMfaQrCode] = useState("");
+  const [mfaSecret, setMfaSecret] = useState("");
+  const [mfaFactorId, setMfaFactorId] = useState("");
+  const [mfaVerificationCode, setMfaVerificationCode] = useState("");
+  const [mfaStep, setMfaStep] = useState<"qr" | "verify">("qr");
 
   useEffect(() => {
     if (user) {
       setIsEmailVerified(user.email_confirmed_at !== null);
+      fetchMFAFactors();
     }
   }, [user]);
 
@@ -237,6 +272,137 @@ const Settings = () => {
       });
     } finally {
       setPasswordLoading(false);
+    }
+  };
+
+  const fetchMFAFactors = async () => {
+    const { data, error } = await listMFAFactors();
+    if (data?.totp) {
+      setMfaFactors(data.totp);
+    }
+  };
+
+  const handleEnableMFA = async () => {
+    setMfaLoading(true);
+    try {
+      const { data, error } = await enrollMFA("GenomicsLab Authenticator");
+      
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to set up 2FA",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data) {
+        setMfaQrCode(data.totp.qr_code);
+        setMfaSecret(data.totp.secret);
+        setMfaFactorId(data.id);
+        setMfaStep("qr");
+        setShowMFASetup(true);
+      }
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to set up 2FA",
+        variant: "destructive",
+      });
+    } finally {
+      setMfaLoading(false);
+    }
+  };
+
+  const handleVerifyMFA = async () => {
+    if (mfaVerificationCode.length !== 6) {
+      toast({
+        title: "Error",
+        description: "Please enter a 6-digit code",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setMfaLoading(true);
+    try {
+      const { error } = await verifyMFA(mfaFactorId, mfaVerificationCode);
+      
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message || "Invalid verification code",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "2FA Enabled",
+        description: "Two-factor authentication is now active.",
+      });
+      
+      setShowMFASetup(false);
+      setMfaVerificationCode("");
+      fetchMFAFactors();
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to verify code",
+        variant: "destructive",
+      });
+    } finally {
+      setMfaLoading(false);
+    }
+  };
+
+  const handleDisableMFA = async (factorId: string) => {
+    setMfaLoading(true);
+    try {
+      const { error } = await unenrollMFA(factorId);
+      
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to disable 2FA",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "2FA Disabled",
+        description: "Two-factor authentication has been removed.",
+      });
+      
+      fetchMFAFactors();
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to disable 2FA",
+        variant: "destructive",
+      });
+    } finally {
+      setMfaLoading(false);
+    }
+  };
+
+  const handleSignOutAllSessions = async () => {
+    try {
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Signed Out",
+        description: "All sessions have been terminated. Please sign in again.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to sign out of all sessions.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -479,6 +645,212 @@ const Settings = () => {
                   
                   <p className="text-xs text-muted-foreground pt-2 border-t border-border">
                     Password must be at least 8 characters. Use a mix of letters, numbers, and symbols for best security.
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Two-Factor Authentication */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Smartphone className="w-5 h-5" />
+                    Two-Factor Authentication
+                  </CardTitle>
+                  <CardDescription>
+                    Add an extra layer of security with authenticator app verification.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {mfaFactors.filter(f => f.status === 'verified').length > 0 ? (
+                    <div className="space-y-3">
+                      {mfaFactors.filter(f => f.status === 'verified').map((factor) => (
+                        <div key={factor.id} className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
+                              <ShieldCheck className="w-5 h-5 text-green-500" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-foreground">
+                                {factor.friendly_name || "Authenticator App"}
+                              </p>
+                              <p className="text-sm text-green-500">Active</p>
+                            </div>
+                          </div>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="outline" size="sm" className="text-destructive border-destructive/50 hover:bg-destructive/10">
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Remove
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Disable Two-Factor Authentication?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This will remove 2FA from your account. You can re-enable it at any time.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleDisableMFA(factor.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Disable 2FA
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      ))}
+                    </div>
+                  ) : showMFASetup ? (
+                    <div className="space-y-4">
+                      {mfaStep === "qr" ? (
+                        <>
+                          <p className="text-sm text-muted-foreground">
+                            Scan this QR code with Google Authenticator or your preferred TOTP app.
+                          </p>
+                          <div className="bg-white p-4 rounded-lg mx-auto w-fit">
+                            <img src={mfaQrCode} alt="2FA QR Code" className="w-48 h-48" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground mb-2">Or enter this secret manually:</p>
+                            <code className="block p-3 bg-secondary rounded font-mono text-xs text-foreground break-all">
+                              {mfaSecret}
+                            </code>
+                          </div>
+                          <Button onClick={() => setMfaStep("verify")} className="w-full">
+                            Continue to Verification
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            onClick={() => setShowMFASetup(false)} 
+                            className="w-full"
+                          >
+                            Cancel
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-sm text-muted-foreground">
+                            Enter the 6-digit code from your authenticator app.
+                          </p>
+                          <Input
+                            type="text"
+                            value={mfaVerificationCode}
+                            onChange={(e) => setMfaVerificationCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                            placeholder="000000"
+                            className="text-center text-2xl tracking-[0.5em] font-mono"
+                            maxLength={6}
+                          />
+                          <div className="flex gap-3">
+                            <Button 
+                              variant="outline" 
+                              onClick={() => setMfaStep("qr")}
+                              className="flex-1"
+                            >
+                              Back
+                            </Button>
+                            <Button 
+                              onClick={handleVerifyMFA}
+                              disabled={mfaLoading || mfaVerificationCode.length !== 6}
+                              className="flex-1"
+                            >
+                              {mfaLoading ? (
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              ) : (
+                                <CheckCircle2 className="w-4 h-4 mr-2" />
+                              )}
+                              Verify & Enable
+                            </Button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                          <ShieldOff className="w-5 h-5 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground">Not Enabled</p>
+                          <p className="text-sm text-muted-foreground">Add 2FA for enhanced security</p>
+                        </div>
+                      </div>
+                      <Button onClick={handleEnableMFA} disabled={mfaLoading}>
+                        {mfaLoading ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <QrCode className="w-4 h-4 mr-2" />
+                        )}
+                        Enable 2FA
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Session Management */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Monitor className="w-5 h-5" />
+                    Active Sessions
+                  </CardTitle>
+                  <CardDescription>
+                    Manage your active sessions and sign out from other devices.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                        <Monitor className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">Current Session</p>
+                        <p className="text-sm text-muted-foreground">
+                          {navigator.userAgent.includes("Mobile") ? "Mobile Device" : "Desktop Browser"}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-xs text-green-500 bg-green-500/10 px-2 py-1 rounded">
+                      Active Now
+                    </span>
+                  </div>
+                  
+                  <div className="pt-4 border-t border-border">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="outline" className="w-full text-destructive border-destructive/50 hover:bg-destructive/10">
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Sign Out All Other Sessions
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Sign Out All Sessions?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will sign you out from all devices including this one. You'll need to sign in again.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={handleSignOutAllSessions}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Sign Out All
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                  
+                  <p className="text-xs text-muted-foreground">
+                    If you suspect unauthorized access, sign out of all sessions immediately.
                   </p>
                 </CardContent>
               </Card>
