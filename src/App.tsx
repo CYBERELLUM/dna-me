@@ -10,6 +10,7 @@ import LabNotebook from "./pages/LabNotebook";
 import DataVault from "./pages/DataVault";
 import Sequences from "./pages/Sequences";
 import Visualizations3D from "./pages/Visualizations3D";
+import NutrigenomicsForecasting from "./pages/NutrigenomicsForecasting";
 import Auth from "./pages/Auth";
 import Security from "./pages/Security";
 import NotFound from "./pages/NotFound";
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/notebook" element={<LabNotebook />} />
             <Route path="/sequences" element={<Sequences />} />
             <Route path="/visualizations" element={<Visualizations3D />} />
+            <Route path="/nutrigenomics" element={<NutrigenomicsForecasting />} />
             <Route path="/data-vault" element={<DataVault />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

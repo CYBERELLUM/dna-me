@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, FlaskConical, BookOpen, Database, Search, Dna, Box } from "lucide-react";
+import { Menu, X, FlaskConical, BookOpen, Database, Search, Dna, Box, Leaf } from "lucide-react";
 import { UserMenu } from "@/components/auth/UserMenu";
 import cyberellumLogo from "@/assets/cyberellum-logo.png";
 
 const navItems = [
-  { path: "/", label: "Research Assistant", icon: Search },
-  { path: "/library", label: "Genomics Library", icon: BookOpen },
-  { path: "/notebook", label: "Lab Notebook", icon: FlaskConical },
+  { path: "/", label: "Research", icon: Search },
+  { path: "/library", label: "Library", icon: BookOpen },
+  { path: "/nutrigenomics", label: "Nutrigenomics", icon: Leaf },
+  { path: "/visualizations", label: "3D Lab", icon: Box },
   { path: "/sequences", label: "Sequences", icon: Dna },
-  { path: "/visualizations", label: "3D Viewer", icon: Box },
-  { path: "/data-vault", label: "Data Vault", icon: Database },
+  { path: "/notebook", label: "Notebook", icon: FlaskConical },
+  { path: "/data-vault", label: "Vault", icon: Database },
 ];
 
 export const Navigation = () => {
