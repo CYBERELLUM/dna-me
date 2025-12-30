@@ -11,11 +11,24 @@ import {
   Beaker,
   Microscope,
   Dna,
-  Loader2
+  Loader2,
+  Download
 } from "lucide-react";
 import { useLabNotes, LabNote } from "@/hooks/useLabNotes";
+import { exportNoteToPdf } from "@/lib/pdfExport";
+import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+  return isMobile;
+};
 const templates = [
   { id: "experiment", name: "Experiment Protocol", icon: FlaskConical },
   { id: "observation", name: "Lab Observation", icon: Microscope },
@@ -199,6 +212,8 @@ const LabNotebook = () => {
   const [isSaving, setIsSaving] = useState(false);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  const isMobile = useIsMobile();
+
   // Update local state when selected note changes
   useEffect(() => {
     if (selectedNote) {
@@ -263,6 +278,22 @@ const LabNotebook = () => {
         content: localContent,
       });
       setIsSaving(false);
+    }
+  };
+
+  const handleExportPdf = async () => {
+    if (selectedNote) {
+      try {
+        await exportNoteToPdf({
+          title: localTitle,
+          content: localContent,
+          createdAt: selectedNote.createdAt,
+          updatedAt: selectedNote.updatedAt,
+        });
+        toast({ title: "PDF exported successfully" });
+      } catch (err) {
+        toast({ title: "Failed to export PDF", variant: "destructive" });
+      }
     }
   };
 
@@ -390,6 +421,14 @@ const LabNotebook = () => {
                         className="flex-1 bg-transparent text-xl font-semibold text-foreground focus:outline-none"
                       />
                       <div className="flex items-center gap-2">
+                        <button
+                          onClick={handleExportPdf}
+                          className="btn-secondary py-2 px-3 text-sm flex items-center gap-2"
+                          title="Export to PDF"
+                        >
+                          <Download className="w-4 h-4" />
+                          {!isMobile && "PDF"}
+                        </button>
                         <button
                           onClick={handleManualSave}
                           disabled={isSaving}
