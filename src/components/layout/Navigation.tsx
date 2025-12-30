@@ -25,7 +25,7 @@ export const Navigation = () => {
         <div className="flex items-center justify-between h-16">
           {/* Brand Name */}
           <Link to="/" className="flex items-center gap-2 group">
-            <span className="font-semibold text-foreground tracking-tight glow-text">Research Assistant</span>
+            <span className="font-semibold text-foreground tracking-tight glow-text">Cyberellum</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -73,7 +73,7 @@ export const Navigation = () => {
                   <Link to="/" onClick={() => setIsOpen(false)} className="flex items-center gap-3">
                     <div className="flex flex-col">
                       <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">CYBERELLUM</span>
-                      <span className="font-semibold text-foreground text-sm glow-text">Research Assistant</span>
+                      <span className="font-semibold text-foreground text-sm glow-text">Technologies</span>
                     </div>
                   </Link>
                 </div>
