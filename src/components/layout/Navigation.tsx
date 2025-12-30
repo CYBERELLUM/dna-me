@@ -5,7 +5,7 @@ import { UserMenu } from "@/components/auth/UserMenu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const navItems = [
-  { path: "/", label: "Research", icon: Search },
+  { path: "/dashboard", label: "Research", icon: Search },
   { path: "/library", label: "Library", icon: BookOpen },
   { path: "/nutrigenomics", label: "Nutrigenomics", icon: Leaf },
   { path: "/visualizations", label: "3D Lab", icon: Box },
@@ -24,7 +24,7 @@ export const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo/Home link */}
-          <Link to="/" className="flex items-center gap-2 group">
+          <Link to="/dashboard" className="flex items-center gap-2 group">
             <Dna className="w-6 h-6 text-primary" />
           </Link>
 
@@ -70,7 +70,7 @@ export const Navigation = () => {
               <div className="flex flex-col h-full">
                 {/* Header */}
                 <div className="p-4 border-b border-border">
-                  <Link to="/" onClick={() => setIsOpen(false)} className="flex items-center gap-3">
+                  <Link to="/dashboard" onClick={() => setIsOpen(false)} className="flex items-center gap-3">
                     <div className="flex flex-col">
                       <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">CYBERELLUM</span>
                       <span className="font-semibold text-foreground text-sm glow-text">Technologies</span>
