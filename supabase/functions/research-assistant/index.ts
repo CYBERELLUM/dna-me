@@ -302,14 +302,14 @@ function synthesizeResponses(responses: AIResponse[], query: string, federated: 
     return successfulResponses[0].content + federatedAppendix;
   }
 
-  // Multiple responses - create a synthesis
-  const synthesis = `## Multi-AI Research Synthesis
+  // Multiple responses - create a synthesis without exposing provider names
+  const synthesis = `## Research Synthesis
 
-Based on analysis from ${successfulResponses.map(r => r.provider).join(", ")}${federated.available ? ` with Federated Core knowledge from node ${federated.nodeId}` : ""}:
+Based on multi-source AI analysis${federated.available ? ` with Federated Core knowledge` : ""}:
 
-${successfulResponses.map((r) => {
+${successfulResponses.map((r, i) => {
   const summary = r.content.length > 800 ? r.content.slice(0, 800) + "..." : r.content;
-  return `### ${r.provider} Analysis:\n${summary}`;
+  return `### Analysis ${i + 1}:\n${summary}`;
 }).join("\n\n")}
 ${federatedAppendix}
 ---
@@ -417,19 +417,22 @@ serve(async (req) => {
     });
 
     const synthesizedContent = synthesizeResponses(responses, lastUserMessage, federatedKnowledge);
-    const successfulProviders = responses.filter(r => r.success).map(r => r.provider);
+    
+    // Return generic source count without exposing provider names to users
+    const sourceCount = responses.filter(r => r.success).length;
+    const sources = [`${sourceCount} AI sources`];
     
     // Include Federated Core in sources if it contributed
     if (federatedKnowledge.available) {
-      successfulProviders.push("Federated Core");
+      sources.push("Federated Core");
     }
 
     return new Response(
       JSON.stringify({
         content: synthesizedContent,
-        sources: successfulProviders,
-        providersQueried: activeProviders,
-        federatedNode: federatedKnowledge.available ? federatedKnowledge.nodeId : null,
+        sources: sources,
+        providersQueried: sourceCount, // Just count, not names
+        federatedNode: federatedKnowledge.available ? "connected" : null,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

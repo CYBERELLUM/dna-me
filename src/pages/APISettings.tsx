@@ -5,9 +5,16 @@ import { DNAMatrix } from "@/components/layout/DNAMatrix";
 import Footer from "@/components/layout/Footer";
 import { AIProviderConfig } from "@/components/research/AIProviderConfig";
 import { useAuth } from "@/hooks/useAuth";
-import { Lock, Eye, EyeOff, Shield, ArrowLeft } from "lucide-react";
+import { Lock, Eye, EyeOff, Shield, ArrowLeft, Crown } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+
+// Admin emails that can see internal AI provider details
+const ADMIN_EMAILS = [
+  "ceo@cyberellum.technology",
+  "coo@cyberellum.technology",
+  "cto@cyberellum.technology",
+];
 
 const APISettings = () => {
   const { user, loading: authLoading } = useAuth();
@@ -16,6 +23,8 @@ const APISettings = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+
+  const isAdmin = user?.email && ADMIN_EMAILS.includes(user.email.toLowerCase());
 
   // Redirect to auth if not logged in
   useEffect(() => {
@@ -75,7 +84,7 @@ const APISettings = () => {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Back button */}
           <Link
-            to="/"
+            to="/dashboard"
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -84,14 +93,25 @@ const APISettings = () => {
 
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/30 rounded-full mb-4">
-              <Shield className="w-4 h-4 text-primary" />
-              <span className="text-sm font-mono text-primary">Secure Area</span>
+              {isAdmin ? (
+                <>
+                  <Crown className="w-4 h-4 text-yellow-500" />
+                  <span className="text-sm font-mono text-yellow-500">Admin Access</span>
+                </>
+              ) : (
+                <>
+                  <Shield className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-mono text-primary">Subscriber Area</span>
+                </>
+              )}
             </div>
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-              Multi-AI API <span className="text-gradient-primary">Settings</span>
+              {isAdmin ? "Admin " : ""}API <span className="text-gradient-primary">Settings</span>
             </h1>
             <p className="text-muted-foreground">
-              Configure your AI provider API keys and external connections
+              {isAdmin 
+                ? "Configure AI providers and view internal system connections" 
+                : "Connect your own AI providers and external data sources"}
             </p>
           </div>
 
@@ -159,7 +179,54 @@ const APISettings = () => {
               </div>
             </div>
           ) : (
-            <AIProviderConfig />
+            <div className="space-y-6">
+              {/* Admin-only: Internal AI Dashboard */}
+              {isAdmin && (
+                <div className="card-scientific p-6 border-yellow-500/30 bg-yellow-500/5">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Crown className="w-5 h-5 text-yellow-500" />
+                    <h3 className="font-semibold text-foreground">Internal AI Infrastructure</h3>
+                    <span className="px-2 py-0.5 text-xs bg-yellow-500/20 text-yellow-500 rounded font-mono">ADMIN ONLY</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Active AI providers powering the research platform. This information is hidden from regular users.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="p-3 bg-background/50 rounded-lg border border-border">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium">Lovable AI Gateway</span>
+                        <span className="px-2 py-0.5 text-xs bg-green-500/20 text-green-400 rounded">PRIMARY</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">google/gemini-2.5-flash</p>
+                    </div>
+                    <div className="p-3 bg-background/50 rounded-lg border border-border">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium">OpenAI</span>
+                        <span className="px-2 py-0.5 text-xs bg-blue-500/20 text-blue-400 rounded">FALLBACK</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">gpt-4o-mini (when user keys configured)</p>
+                    </div>
+                    <div className="p-3 bg-background/50 rounded-lg border border-border">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium">Google Gemini</span>
+                        <span className="px-2 py-0.5 text-xs bg-purple-500/20 text-purple-400 rounded">OPTIONAL</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">gemini-1.5-flash (when user keys configured)</p>
+                    </div>
+                    <div className="p-3 bg-background/50 rounded-lg border border-border">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium">Federated Core</span>
+                        <span className="px-2 py-0.5 text-xs bg-cyan-500/20 text-cyan-400 rounded">KNOWLEDGE</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">yokxmlatktvxqymxtktn (25-year research data)</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Subscriber API Configuration */}
+              <AIProviderConfig />
+            </div>
           )}
         </div>
       </main>
