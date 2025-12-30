@@ -17,7 +17,11 @@ import {
   Sun,
   Loader2,
   Save,
-  LogIn
+  LogIn,
+  Shield,
+  Mail,
+  Key,
+  CheckCircle2
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
@@ -35,6 +39,19 @@ const Settings = () => {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [researchAlerts, setResearchAlerts] = useState(true);
   const [weeklyDigest, setWeeklyDigest] = useState(false);
+  
+  // Security state
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [verificationLoading, setVerificationLoading] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setIsEmailVerified(user.email_confirmed_at !== null);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (user) {
@@ -113,6 +130,116 @@ const Settings = () => {
     });
   };
 
+  const handleSendVerificationEmail = async () => {
+    if (!user?.email) return;
+    
+    setVerificationLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: user.email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/settings`
+        }
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Verification Email Sent",
+        description: "Please check your inbox and click the verification link.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send verification email.",
+        variant: "destructive",
+      });
+    } finally {
+      setVerificationLoading(false);
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    if (!newPassword || !confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Please fill in both password fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (newPassword.length < 8) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 8 characters long.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setPasswordLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      
+      if (error) throw error;
+      
+      setNewPassword("");
+      setConfirmPassword("");
+      
+      toast({
+        title: "Password Updated",
+        description: "Your password has been changed successfully.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update password.",
+        variant: "destructive",
+      });
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  const handleSendPasswordResetEmail = async () => {
+    if (!user?.email) return;
+    
+    setPasswordLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+        redirectTo: `${window.location.origin}/settings`
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Password Reset Email Sent",
+        description: "Check your inbox for a link to reset your password.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send password reset email.",
+        variant: "destructive",
+      });
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -161,10 +288,14 @@ const Settings = () => {
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="bg-secondary/50">
+          <TabsList className="bg-secondary/50 flex-wrap h-auto">
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="w-4 h-4" />
               Profile
+            </TabsTrigger>
+            <TabsTrigger value="security" className="flex items-center gap-2">
+              <Shield className="w-4 h-4" />
+              Security
             </TabsTrigger>
             <TabsTrigger value="appearance" className="flex items-center gap-2">
               <Sun className="w-4 h-4" />
@@ -228,6 +359,130 @@ const Settings = () => {
                 </Button>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="security">
+            <div className="space-y-6">
+              {/* Email Verification */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Mail className="w-5 h-5" />
+                    Email Verification
+                  </CardTitle>
+                  <CardDescription>
+                    Verify your email address to secure your account.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        isEmailVerified ? 'bg-green-500/20' : 'bg-yellow-500/20'
+                      }`}>
+                        {isEmailVerified ? (
+                          <CheckCircle2 className="w-5 h-5 text-green-500" />
+                        ) : (
+                          <Mail className="w-5 h-5 text-yellow-500" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">{user?.email}</p>
+                        <p className={`text-sm ${isEmailVerified ? 'text-green-500' : 'text-yellow-500'}`}>
+                          {isEmailVerified ? 'Verified' : 'Not verified'}
+                        </p>
+                      </div>
+                    </div>
+                    {!isEmailVerified && (
+                      <Button 
+                        onClick={handleSendVerificationEmail}
+                        disabled={verificationLoading}
+                        variant="outline"
+                      >
+                        {verificationLoading ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Mail className="w-4 h-4 mr-2" />
+                        )}
+                        Resend Verification
+                      </Button>
+                    )}
+                  </div>
+                  {!isEmailVerified && (
+                    <p className="text-sm text-muted-foreground">
+                      A verified email helps secure your account and enables password recovery.
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Password Reset */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Key className="w-5 h-5" />
+                    Change Password
+                  </CardTitle>
+                  <CardDescription>
+                    Update your password to keep your account secure.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="newPassword">New Password</Label>
+                    <Input 
+                      id="newPassword"
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Enter new password"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                    <Input 
+                      id="confirmPassword"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm new password"
+                    />
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                    <Button 
+                      onClick={handlePasswordReset}
+                      disabled={passwordLoading || !newPassword || !confirmPassword}
+                    >
+                      {passwordLoading ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Key className="w-4 h-4 mr-2" />
+                      )}
+                      Update Password
+                    </Button>
+                    
+                    <Button 
+                      variant="outline"
+                      onClick={handleSendPasswordResetEmail}
+                      disabled={passwordLoading}
+                    >
+                      {passwordLoading ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Mail className="w-4 h-4 mr-2" />
+                      )}
+                      Send Reset Link
+                    </Button>
+                  </div>
+                  
+                  <p className="text-xs text-muted-foreground pt-2 border-t border-border">
+                    Password must be at least 8 characters. Use a mix of letters, numbers, and symbols for best security.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="appearance">
