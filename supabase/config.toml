@@ -2,3 +2,6 @@ project_id = "wymznknyhbsiqycrsduj"
 
 [functions.research-assistant]
 verify_jwt = false
+
+[functions.nutrigenomics-forecast]
+verify_jwt = false
