@@ -128,7 +128,7 @@ async function queryGemini(messages: any[], apiKey: string, systemPrompt: string
   }
 }
 
-async function queryLovableAI(messages: any[], apiKey: string, systemPrompt: string): Promise<AIResponse> {
+async function queryMultiAIGateway(messages: any[], apiKey: string, systemPrompt: string): Promise<AIResponse> {
   try {
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -144,19 +144,19 @@ async function queryLovableAI(messages: any[], apiKey: string, systemPrompt: str
 
     if (!response.ok) {
       const error = await response.text();
-      console.error("Lovable AI error:", error);
-      return { provider: "Lovable AI", content: "", success: false, error };
+      console.error("Multi-AI Gateway error:", error);
+      return { provider: "Multi-AI Gateway", content: "", success: false, error };
     }
 
     const data = await response.json();
     return {
-      provider: "Lovable AI",
+      provider: "Multi-AI Gateway",
       content: data.choices?.[0]?.message?.content || "",
       success: true,
     };
   } catch (error) {
-    console.error("Lovable AI exception:", error);
-    return { provider: "Lovable AI", content: "", success: false, error: String(error) };
+    console.error("Multi-AI Gateway exception:", error);
+    return { provider: "Multi-AI Gateway", content: "", success: false, error: String(error) };
   }
 }
 
@@ -198,12 +198,12 @@ serve(async (req) => {
     const researchMode: ResearchMode = mode || "general";
     const systemPrompt = getSystemPrompt(researchMode);
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const MULTI_AI_KEY = Deno.env.get("LOVABLE_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    if (!MULTI_AI_KEY) {
+      throw new Error("Multi-AI Gateway key is not configured");
     }
 
     console.log("Processing research query with messages:", messages.length, "mode:", researchMode);
@@ -236,9 +236,9 @@ serve(async (req) => {
     const queries: Promise<AIResponse>[] = [];
     const activeProviders: string[] = [];
 
-    // Always include Lovable AI as the primary provider
-    queries.push(queryLovableAI(messages, LOVABLE_API_KEY, systemPrompt));
-    activeProviders.push("Lovable AI");
+    // Always include Multi-AI Gateway as the primary provider
+    queries.push(queryMultiAIGateway(messages, MULTI_AI_KEY, systemPrompt));
+    activeProviders.push("Multi-AI Gateway");
 
     // Add user-configured providers
     if (openaiConfig?.api_key_encrypted) {

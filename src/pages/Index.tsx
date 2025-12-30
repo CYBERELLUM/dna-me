@@ -2,10 +2,10 @@ import { Navigation } from "@/components/layout/Navigation";
 import { ParallaxSection } from "@/components/layout/ParallaxSection";
 import { DNAMatrix } from "@/components/layout/DNAMatrix";
 import { ChatInterface } from "@/components/research/ChatInterface";
-import { AIProviderConfig } from "@/components/research/AIProviderConfig";
 import Footer from "@/components/layout/Footer";
-import { Sparkles, Zap, Globe, Shield } from "lucide-react";
+import { Sparkles, Zap, Globe, Shield, Settings } from "lucide-react";
 import cyberellumLogo from "@/assets/cyberellum-logo.png";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   return (
@@ -50,12 +50,11 @@ const Index = () => {
             ))}
           </div>
 
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Chat Interface */}
-            <div className="lg:col-span-1">
-              {/* Chat header above chat */}
-              <div className="mb-6 flex items-center gap-5 rounded-xl border border-border bg-secondary/40 px-4 py-4">
+          {/* Main Content - Full Width Chat */}
+          <div className="max-w-4xl mx-auto">
+            {/* Chat header above chat */}
+            <div className="mb-6 flex items-center justify-between gap-5 rounded-xl border border-border bg-secondary/40 px-4 py-4">
+              <div className="flex items-center gap-5">
                 <div className="relative flex items-center justify-center shrink-0">
                   {/* Radar pulse rings */}
                   <div
@@ -95,16 +94,38 @@ const Index = () => {
                   </p>
                 </div>
               </div>
-              <ChatInterface />
+
+              {/* API Settings link */}
+              <Link
+                to="/api-settings"
+                className="flex items-center gap-2 px-4 py-2 bg-secondary border border-border rounded-lg text-muted-foreground hover:text-foreground hover:border-primary/50 transition-all"
+              >
+                <Settings className="w-4 h-4" />
+                <span className="text-sm hidden sm:inline">API Settings</span>
+              </Link>
             </div>
 
-            {/* Configuration Panel */}
-            <div className="lg:col-span-1">
-              <AIProviderConfig />
-            </div>
+            <ChatInterface />
           </div>
         </div>
       </ParallaxSection>
+
+      {/* DNA Video Section */}
+      <section className="relative w-full overflow-hidden">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-auto object-cover"
+          style={{ maxHeight: "400px" }}
+        >
+          <source src="/videos/dna-animation.mp4" type="video/mp4" />
+        </video>
+        {/* Gradient overlays for seamless blend */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background pointer-events-none" />
+      </section>
+
       <Footer />
     </div>
   );

@@ -159,7 +159,7 @@ export const ChatInterface = () => {
         sources={activeSources}
       />
 
-      <div className="flex flex-col h-[640px] glass-panel glow-border rounded-xl overflow-hidden">
+      <div className="flex flex-col h-[720px] glass-panel glow-border rounded-xl overflow-hidden">
         {/* Top toolbar */}
         <div className="flex items-center justify-between px-4 py-2 border-b border-border/50 bg-secondary/30">
           <ResearchModeSelector

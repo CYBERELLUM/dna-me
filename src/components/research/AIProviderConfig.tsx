@@ -22,11 +22,11 @@ interface Provider {
 
 const providers: Provider[] = [
   {
-    id: "lovable",
-    name: "Lovable AI",
+    id: "multiaigateway",
+    name: "Multi-AI Gateway",
     description: "Primary research synthesis engine",
     status: "connected",
-    fields: [{ id: "api_key", label: "API Key", placeholder: "lv_...", type: "password" }],
+    fields: [{ id: "api_key", label: "API Key", placeholder: "mai_...", type: "password" }],
   },
   {
     id: "openai",
@@ -264,8 +264,8 @@ export const AIProviderConfig = () => {
             {providers.map((provider) => {
               // Determine connection status based on whether an API key is configured
               const hasApiKey = !!formValues[`${provider.id}-api_key`];
-              const isLovable = provider.id === "lovable";
-              const status = isLovable || hasApiKey ? "connected" : "disconnected";
+              const isGateway = provider.id === "multiaigateway";
+              const status = isGateway || hasApiKey ? "connected" : "disconnected";
               
               return (
               <div key={provider.id} className="p-4 bg-secondary/50 rounded-lg border border-border">
