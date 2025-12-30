@@ -1,11 +1,31 @@
 import { useRef, useEffect, useState } from "react";
-import { Send, Bot, User, Loader2 } from "lucide-react";
+import { Send, Bot, User, Loader2, Mic, MicOff } from "lucide-react";
 import { useResearchChat } from "@/hooks/useResearchChat";
+import { toast } from "sonner";
+
+// Type declarations for Web Speech API
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionInstance extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: Event) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+}
 
 export const ChatInterface = () => {
   const { messages, isLoading, sendMessage } = useResearchChat();
   const [input, setInput] = useState("");
+  const [isListening, setIsListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -14,6 +34,55 @@ export const ChatInterface = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    // Initialize speech recognition
+    const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    
+    if (SpeechRecognitionAPI) {
+      recognitionRef.current = new SpeechRecognitionAPI() as SpeechRecognitionInstance;
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.lang = 'en-US';
+
+      recognitionRef.current.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setInput((prev) => prev + transcript);
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onerror = () => {
+        console.error('Speech recognition error');
+        toast.error('Voice input error. Please try again.');
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+    };
+  }, []);
+
+  const toggleVoiceInput = () => {
+    if (!recognitionRef.current) {
+      toast.error('Voice input is not supported in this browser');
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      recognitionRef.current.start();
+      setIsListening(true);
+      toast.info('Listening... Speak now');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,17 +95,6 @@ export const ChatInterface = () => {
 
   return (
     <div className="flex flex-col h-[600px] glass-panel glow-border">
-      {/* Header */}
-      <div className="flex items-center gap-3 p-4 border-b border-border">
-        <div className="relative">
-          <Bot className="w-6 h-6 text-primary" />
-          <div className="absolute -top-1 -right-1 pulse-dot" />
-        </div>
-        <div>
-          <h3 className="font-semibold text-foreground">Research Assistant</h3>
-          <p className="text-xs text-muted-foreground font-mono">Multi-AI Agent • Active</p>
-        </div>
-      </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin">
@@ -109,6 +167,18 @@ export const ChatInterface = () => {
       {/* Input */}
       <form onSubmit={handleSubmit} className="p-4 border-t border-border">
         <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={toggleVoiceInput}
+            disabled={isLoading}
+            className={`p-3 rounded-lg transition-all duration-200 ${
+              isListening 
+                ? "bg-primary text-primary-foreground animate-pulse" 
+                : "bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground"
+            } disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+          </button>
           <input
             type="text"
             value={input}
@@ -127,6 +197,18 @@ export const ChatInterface = () => {
           </button>
         </div>
       </form>
+
+      {/* Prominent Header Below Input */}
+      <div className="flex items-center justify-center gap-4 p-6 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border-t border-primary/20">
+        <div className="relative">
+          <Bot className="w-10 h-10 text-primary" />
+          <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-green-500 animate-pulse" />
+        </div>
+        <div className="text-center">
+          <h3 className="text-xl font-bold text-foreground">Research Assistant</h3>
+          <p className="text-sm text-muted-foreground font-mono">Multi-AI Agent • Active</p>
+        </div>
+      </div>
     </div>
   );
 };
