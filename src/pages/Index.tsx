@@ -43,6 +43,9 @@ const Index = () => {
               <Sparkles className="w-4 h-4 text-primary" />
               <span className="text-sm font-mono text-primary">Multi-AI Research Platform</span>
             </div>
+            <div className="mb-2">
+              <span className="text-lg md:text-xl font-mono text-primary/80 uppercase tracking-[0.3em]">Cyberellum Technologies & Laboratory</span>
+            </div>
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-4">
               Research <span className="text-gradient-primary">Assistant</span>
             </h1>
