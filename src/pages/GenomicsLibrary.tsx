@@ -3,7 +3,7 @@ import { DNAMatrix } from "@/components/layout/DNAMatrix";
 import { ParallaxSection } from "@/components/layout/ParallaxSection";
 import { 
   ExternalLink, Calendar, Users, BookOpen, Search, Dna, 
-  FileText, Database, Loader2, AlertCircle, RefreshCw
+  FileText, Database, Loader2, AlertCircle, RefreshCw, Heart
 } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -11,11 +11,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { searchPubMed, searchGenes, searchSequences, type PubMedArticle, type GeneInfo, type SequenceInfo } from "@/lib/api/ncbi";
+import { useSavedItems } from "@/hooks/useSavedItems";
+import { useAuth } from "@/hooks/useAuth";
 
 const GenomicsLibrary = () => {
   const [searchTerm, setSearchTerm] = useState("CRISPR");
   const [activeTab, setActiveTab] = useState("publications");
   const [searchQuery, setSearchQuery] = useState("CRISPR");
+  const { user } = useAuth();
+  const { isItemSaved, toggleSave } = useSavedItems();
 
   const handleSearch = () => {
     if (searchTerm.trim()) {
@@ -86,6 +90,7 @@ const GenomicsLibrary = () => {
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Search NCBI databases for peer-reviewed publications, gene information, 
               and nucleotide sequences in real-time.
+              {user && " Click the heart icon to save items to your library."}
             </p>
           </div>
 
@@ -162,7 +167,14 @@ const GenomicsLibrary = () => {
                   </div>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {articles.map((article: PubMedArticle, index: number) => (
-                      <ArticleCard key={article.id} article={article} index={index} />
+                      <ArticleCard 
+                        key={article.id} 
+                        article={article} 
+                        index={index}
+                        isSaved={isItemSaved("publication", article.pmid)}
+                        onToggleSave={() => toggleSave("publication", article.pmid, article)}
+                        showSaveButton={!!user}
+                      />
                     ))}
                   </div>
                   {articles.length === 0 && (
@@ -181,7 +193,14 @@ const GenomicsLibrary = () => {
                   </div>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {genes.map((gene: GeneInfo, index: number) => (
-                      <GeneCard key={gene.id} gene={gene} index={index} />
+                      <GeneCard 
+                        key={gene.id} 
+                        gene={gene} 
+                        index={index}
+                        isSaved={isItemSaved("gene", gene.id)}
+                        onToggleSave={() => toggleSave("gene", gene.id, gene)}
+                        showSaveButton={!!user}
+                      />
                     ))}
                   </div>
                   {genes.length === 0 && (
@@ -200,7 +219,14 @@ const GenomicsLibrary = () => {
                   </div>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {sequences.map((sequence: SequenceInfo, index: number) => (
-                      <SequenceCard key={sequence.id} sequence={sequence} index={index} />
+                      <SequenceCard 
+                        key={sequence.id} 
+                        sequence={sequence} 
+                        index={index}
+                        isSaved={isItemSaved("sequence", sequence.id)}
+                        onToggleSave={() => toggleSave("sequence", sequence.id, sequence)}
+                        showSaveButton={!!user}
+                      />
                     ))}
                   </div>
                   {sequences.length === 0 && (
@@ -223,8 +249,39 @@ const GenomicsLibrary = () => {
   );
 };
 
+// Save Button Component
+const SaveButton = ({ isSaved, onToggle }: { isSaved: boolean; onToggle: () => void }) => (
+  <button
+    onClick={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onToggle();
+    }}
+    className={`p-2 rounded-md transition-all ${
+      isSaved 
+        ? "text-red-500 bg-red-500/10 hover:bg-red-500/20" 
+        : "text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
+    }`}
+    title={isSaved ? "Remove from library" : "Save to library"}
+  >
+    <Heart className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
+  </button>
+);
+
 // Article Card Component
-const ArticleCard = ({ article, index }: { article: PubMedArticle; index: number }) => (
+const ArticleCard = ({ 
+  article, 
+  index, 
+  isSaved, 
+  onToggleSave,
+  showSaveButton 
+}: { 
+  article: PubMedArticle; 
+  index: number;
+  isSaved: boolean;
+  onToggleSave: () => void;
+  showSaveButton: boolean;
+}) => (
   <article
     className="card-scientific group animate-fade-in"
     style={{ animationDelay: `${index * 50}ms` }}
@@ -233,9 +290,12 @@ const ArticleCard = ({ article, index }: { article: PubMedArticle; index: number
       <span className="px-3 py-1 bg-primary/10 text-primary text-xs font-mono rounded">
         PMID: {article.pmid}
       </span>
-      <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
-        <Calendar className="w-3 h-3" />
-        {article.year}
+      <div className="flex items-center gap-2">
+        {showSaveButton && <SaveButton isSaved={isSaved} onToggle={onToggleSave} />}
+        <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
+          <Calendar className="w-3 h-3" />
+          {article.year}
+        </div>
       </div>
     </div>
 
@@ -270,7 +330,19 @@ const ArticleCard = ({ article, index }: { article: PubMedArticle; index: number
 );
 
 // Gene Card Component
-const GeneCard = ({ gene, index }: { gene: GeneInfo; index: number }) => (
+const GeneCard = ({ 
+  gene, 
+  index,
+  isSaved,
+  onToggleSave,
+  showSaveButton
+}: { 
+  gene: GeneInfo; 
+  index: number;
+  isSaved: boolean;
+  onToggleSave: () => void;
+  showSaveButton: boolean;
+}) => (
   <article
     className="card-scientific group animate-fade-in"
     style={{ animationDelay: `${index * 50}ms` }}
@@ -279,9 +351,12 @@ const GeneCard = ({ gene, index }: { gene: GeneInfo; index: number }) => (
       <span className="px-3 py-1 bg-accent/20 text-accent text-xs font-mono rounded font-bold">
         {gene.symbol}
       </span>
-      <span className="text-xs text-muted-foreground font-mono">
-        Chr {gene.chromosome}
-      </span>
+      <div className="flex items-center gap-2">
+        {showSaveButton && <SaveButton isSaved={isSaved} onToggle={onToggleSave} />}
+        <span className="text-xs text-muted-foreground font-mono">
+          Chr {gene.chromosome}
+        </span>
+      </div>
     </div>
 
     <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
@@ -315,7 +390,19 @@ const GeneCard = ({ gene, index }: { gene: GeneInfo; index: number }) => (
 );
 
 // Sequence Card Component
-const SequenceCard = ({ sequence, index }: { sequence: SequenceInfo; index: number }) => (
+const SequenceCard = ({ 
+  sequence, 
+  index,
+  isSaved,
+  onToggleSave,
+  showSaveButton
+}: { 
+  sequence: SequenceInfo; 
+  index: number;
+  isSaved: boolean;
+  onToggleSave: () => void;
+  showSaveButton: boolean;
+}) => (
   <article
     className="card-scientific group animate-fade-in"
     style={{ animationDelay: `${index * 50}ms` }}
@@ -324,9 +411,12 @@ const SequenceCard = ({ sequence, index }: { sequence: SequenceInfo; index: numb
       <span className="px-3 py-1 bg-secondary text-foreground text-xs font-mono rounded">
         {sequence.accession}
       </span>
-      <span className="text-xs text-muted-foreground font-mono">
-        {sequence.type}
-      </span>
+      <div className="flex items-center gap-2">
+        {showSaveButton && <SaveButton isSaved={isSaved} onToggle={onToggleSave} />}
+        <span className="text-xs text-muted-foreground font-mono">
+          {sequence.type}
+        </span>
+      </div>
     </div>
 
     <h3 className="text-base font-semibold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2">

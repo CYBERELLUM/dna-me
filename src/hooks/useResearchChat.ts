@@ -1,39 +1,40 @@
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
-
-interface Message {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  timestamp: Date;
-  sources?: string[];
-}
+import { useChatHistory, ChatMessage } from "@/hooks/useChatHistory";
+import { useAuth } from "@/hooks/useAuth";
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/research-assistant`;
 
 export const useResearchChat = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      role: "assistant",
-      content: "Welcome to the Research Assistant. I'm your AI-powered concierge for genomics research. I can help you query multiple AI providers, search scientific databases, and synthesize research findings. How can I assist your research today?",
-      timestamp: new Date(),
-    },
-  ]);
+  const { user } = useAuth();
+  const { 
+    messages, 
+    isLoading: historyLoading, 
+    saveMessage, 
+    addMessage, 
+    updateMessage,
+    setMessages 
+  } = useChatHistory();
   const [isLoading, setIsLoading] = useState(false);
 
   const sendMessage = useCallback(async (input: string) => {
     if (!input.trim() || isLoading) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
+    const userMessageId = `user-${Date.now()}`;
+    const userMessage: ChatMessage = {
+      id: userMessageId,
       role: "user",
       content: input,
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    addMessage(userMessage);
     setIsLoading(true);
+
+    // Save user message to database if logged in
+    if (user) {
+      saveMessage("user", input);
+    }
 
     // Prepare messages for API (only role and content)
     const apiMessages = [...messages, userMessage].map(({ role, content }) => ({
@@ -42,6 +43,7 @@ export const useResearchChat = () => {
     }));
 
     let assistantContent = "";
+    const streamMessageId = `stream-${Date.now()}`;
 
     try {
       const response = await fetch(CHAT_URL, {
@@ -66,13 +68,13 @@ export const useResearchChat = () => {
       const decoder = new TextDecoder();
       let textBuffer = "";
 
-      const updateAssistantMessage = (content: string) => {
+      const updateAssistantContent = (content: string) => {
         assistantContent = content;
         setMessages((prev) => {
           const last = prev[prev.length - 1];
-          if (last?.role === "assistant" && last.id.startsWith("stream-")) {
-            return prev.map((m, i) =>
-              i === prev.length - 1
+          if (last?.role === "assistant" && last.id === streamMessageId) {
+            return prev.map((m) =>
+              m.id === streamMessageId
                 ? { ...m, content, timestamp: new Date() }
                 : m
             );
@@ -80,7 +82,7 @@ export const useResearchChat = () => {
           return [
             ...prev,
             {
-              id: `stream-${Date.now()}`,
+              id: streamMessageId,
               role: "assistant" as const,
               content,
               timestamp: new Date(),
@@ -113,7 +115,7 @@ export const useResearchChat = () => {
             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
             if (content) {
               assistantContent += content;
-              updateAssistantMessage(assistantContent);
+              updateAssistantContent(assistantContent);
             }
           } catch {
             // Incomplete JSON, put back and wait for more data
@@ -137,23 +139,28 @@ export const useResearchChat = () => {
             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
             if (content) {
               assistantContent += content;
-              updateAssistantMessage(assistantContent);
+              updateAssistantContent(assistantContent);
             }
           } catch {
             /* ignore partial leftovers */
           }
         }
       }
+
+      // Save assistant response to database if logged in
+      if (user && assistantContent) {
+        saveMessage("assistant", assistantContent, ["Lovable AI", "Gemini 2.5 Flash"]);
+      }
     } catch (error) {
       console.error("Chat error:", error);
       toast.error(error instanceof Error ? error.message : "Failed to send message");
       
       // Remove the user message if there was an error
-      setMessages((prev) => prev.filter((m) => m.id !== userMessage.id));
+      setMessages((prev) => prev.filter((m) => m.id !== userMessageId));
     } finally {
       setIsLoading(false);
     }
-  }, [messages, isLoading]);
+  }, [messages, isLoading, user, addMessage, saveMessage, setMessages]);
 
-  return { messages, isLoading, sendMessage };
+  return { messages, isLoading: isLoading || historyLoading, sendMessage };
 };
