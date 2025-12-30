@@ -65,14 +65,28 @@ const Auth = () => {
     
     try {
       if (isLogin) {
-        const { error } = await signIn(email, password);
-        if (error) {
+        const result = await signIn(email, password);
+        const { error } = result;
+        const rateLimit = (result as any).rateLimit;
+        
+        if (rateLimit?.blocked) {
+          const minutes = Math.ceil((rateLimit.cooldownSeconds || 0) / 60);
+          toast.error(`Account temporarily locked. Try again in ${minutes} minute${minutes > 1 ? 's' : ''}.`);
+        } else if (error) {
           if (error.message.includes("Invalid login credentials")) {
-            toast.error("Invalid email or password");
+            const remaining = rateLimit?.attemptsRemaining;
+            if (remaining !== undefined && remaining <= 3) {
+              toast.error(`Invalid credentials. ${remaining} attempt${remaining !== 1 ? 's' : ''} remaining.`);
+            } else {
+              toast.error("Invalid email or password");
+            }
           } else {
             toast.error(error.message);
           }
         } else {
+          if (rateLimit?.suspicious) {
+            toast.warning("Unusual login detected. Please verify your recent activity.");
+          }
           toast.success("Welcome back!");
           navigate("/dashboard");
         }

@@ -44,6 +44,33 @@ export type Database = {
         }
         Relationships: []
       }
+      blocked_ips: {
+        Row: {
+          blocked_until: string | null
+          created_at: string
+          id: string
+          ip_address: string
+          permanent: boolean
+          reason: string
+        }
+        Insert: {
+          blocked_until?: string | null
+          created_at?: string
+          id?: string
+          ip_address: string
+          permanent?: boolean
+          reason: string
+        }
+        Update: {
+          blocked_until?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: string
+          permanent?: boolean
+          reason?: string
+        }
+        Relationships: []
+      }
       chat_history: {
         Row: {
           content: string
@@ -98,6 +125,36 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      login_attempts: {
+        Row: {
+          created_at: string
+          email: string
+          failure_reason: string | null
+          id: string
+          ip_address: string
+          success: boolean
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          failure_reason?: string | null
+          id?: string
+          ip_address: string
+          success?: boolean
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          failure_reason?: string | null
+          id?: string
+          ip_address?: string
+          success?: boolean
+          user_agent?: string | null
         }
         Relationships: []
       }
@@ -160,7 +217,38 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_login_rate_limit: {
+        Args: {
+          p_email: string
+          p_ip_address: string
+          p_max_attempts?: number
+          p_window_minutes?: number
+        }
+        Returns: {
+          attempts_remaining: number
+          block_reason: string
+          cooldown_seconds: number
+          is_blocked: boolean
+        }[]
+      }
+      detect_suspicious_login: {
+        Args: { p_email: string; p_ip_address: string; p_user_agent: string }
+        Returns: {
+          is_suspicious: boolean
+          risk_score: number
+          suspicion_reason: string
+        }[]
+      }
+      log_login_attempt: {
+        Args: {
+          p_email: string
+          p_failure_reason?: string
+          p_ip_address: string
+          p_success: boolean
+          p_user_agent: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

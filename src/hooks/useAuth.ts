@@ -2,6 +2,19 @@ import { useState, useEffect, useCallback } from "react";
 import { User, Session, AuthError } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
+const AUTH_SECURITY_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/auth-security`;
+
+interface RateLimitResponse {
+  allowed: boolean;
+  blocked?: boolean;
+  blockReason?: string;
+  attemptsRemaining?: number;
+  cooldownSeconds?: number;
+  suspicious?: boolean;
+  suspicionReason?: string;
+  riskScore?: number;
+}
+
 export interface MFAFactor {
   id: string;
   friendly_name?: string;
@@ -68,11 +81,81 @@ export const useAuth = () => {
     return { data, error };
   }, []);
 
+  const checkRateLimit = useCallback(async (email: string): Promise<RateLimitResponse> => {
+    try {
+      const response = await fetch(AUTH_SECURITY_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ action: "check", email }),
+      });
+      
+      if (!response.ok && response.status === 429) {
+        const data = await response.json();
+        return data as RateLimitResponse;
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error("Rate limit check failed:", error);
+      // Fail open - allow the attempt
+      return { allowed: true };
+    }
+  }, []);
+
+  const logLoginAttempt = useCallback(async (
+    email: string, 
+    success: boolean, 
+    failureReason?: string
+  ) => {
+    try {
+      await fetch(AUTH_SECURITY_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ 
+          action: "log", 
+          email, 
+          success, 
+          failureReason 
+        }),
+      });
+    } catch (error) {
+      console.error("Failed to log login attempt:", error);
+    }
+  }, []);
+
   const signIn = useCallback(async (email: string, password: string) => {
+    // Check rate limit before attempting login
+    const rateCheck = await checkRateLimit(email);
+    
+    if (!rateCheck.allowed) {
+      return {
+        data: null,
+        error: {
+          message: rateCheck.blockReason || "Too many login attempts. Please try again later.",
+          status: 429,
+        } as AuthError,
+        rateLimit: rateCheck,
+      };
+    }
+
+    // Warn about suspicious activity but allow the attempt
+    if (rateCheck.suspicious) {
+      console.warn("Suspicious login detected:", rateCheck.suspicionReason);
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+    
+    // Log the attempt
+    await logLoginAttempt(email, !error, error?.message);
     
     if (!error && data.session) {
       // Check if MFA is required
@@ -82,8 +165,12 @@ export const useAuth = () => {
       }
     }
     
-    return { data, error };
-  }, []);
+    return { 
+      data, 
+      error,
+      rateLimit: rateCheck,
+    };
+  }, [checkRateLimit, logLoginAttempt]);
 
   const signOut = useCallback(async () => {
     const { error } = await supabase.auth.signOut();
