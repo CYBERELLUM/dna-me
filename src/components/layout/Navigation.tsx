@@ -23,9 +23,9 @@ export const Navigation = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-border/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Brand Name */}
+          {/* Logo/Home link */}
           <Link to="/" className="flex items-center gap-2 group">
-            <span className="font-semibold text-foreground tracking-tight glow-text">Cyberellum</span>
+            <Dna className="w-6 h-6 text-primary" />
           </Link>
 
           {/* Desktop Navigation */}
