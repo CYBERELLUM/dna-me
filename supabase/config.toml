@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.vertex-verify]
 verify_jwt = false
+
+[functions.federation-receiver]
+verify_jwt = false
