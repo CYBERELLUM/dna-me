@@ -17,20 +17,22 @@ serve(async (req) => {
   }
 
   try {
+    const { action, data, table, filters } = await req.json();
+    console.log(`[Federation Receiver] Action: ${action}, Table: ${table || 'N/A'}`);
+
     const syncKey = req.headers.get("x-sync-key");
     const expectedSyncKey = Deno.env.get("FEDERATED_SYNC_KEY");
 
-    // Validate sync key for write operations
-    if (req.method !== "GET" && syncKey !== expectedSyncKey) {
-      console.log("[Federation Receiver] Invalid sync key");
+    // Allow ping and status without auth, require sync key for write operations
+    const publicActions = ["ping", "status"];
+    if (!publicActions.includes(action) && syncKey !== expectedSyncKey) {
+      console.log("[Federation Receiver] Invalid sync key for action:", action);
       return new Response(
         JSON.stringify({ success: false, message: "Unauthorized: Invalid sync key" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const { action, data, table, filters } = await req.json();
-    console.log(`[Federation Receiver] Action: ${action}, Table: ${table || 'N/A'}`);
 
     // Local Supabase client
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
