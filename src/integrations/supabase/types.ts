@@ -98,6 +98,45 @@ export type Database = {
         }
         Relationships: []
       }
+      federation_sync_history: {
+        Row: {
+          completed_at: string | null
+          details: Json | null
+          error_message: string | null
+          id: string
+          node_id: string
+          operation: string
+          records_failed: number | null
+          records_synced: number | null
+          started_at: string
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          details?: Json | null
+          error_message?: string | null
+          id?: string
+          node_id: string
+          operation: string
+          records_failed?: number | null
+          records_synced?: number | null
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          details?: Json | null
+          error_message?: string | null
+          id?: string
+          node_id?: string
+          operation?: string
+          records_failed?: number | null
+          records_synced?: number | null
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
       lab_notes: {
         Row: {
           content: string | null

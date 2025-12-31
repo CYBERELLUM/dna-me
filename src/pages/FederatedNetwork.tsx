@@ -4,6 +4,8 @@ import { ParallaxSection } from "@/components/layout/ParallaxSection";
 import { DNAMatrix } from "@/components/layout/DNAMatrix";
 import Footer from "@/components/layout/Footer";
 import PageBreadcrumb from "@/components/layout/PageBreadcrumb";
+import { SyncStatusIndicator } from "@/components/federation/SyncStatusIndicator";
+import { SyncHistoryLog } from "@/components/federation/SyncHistoryLog";
 import { 
   Globe, 
   Database, 
@@ -15,7 +17,8 @@ import {
   Activity,
   Users,
   Shield,
-  Zap
+  Zap,
+  History
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -144,8 +147,13 @@ const FederatedNetwork = () => {
             </div>
           </div>
 
+          {/* Real-time Sync Status */}
+          <div className="mb-8">
+            <SyncStatusIndicator />
+          </div>
+
           <Tabs defaultValue="repositories" className="space-y-8">
-            <TabsList className="grid grid-cols-3 max-w-md mx-auto">
+            <TabsList className="grid grid-cols-4 max-w-xl mx-auto">
               <TabsTrigger value="repositories" className="gap-2">
                 <Database className="w-4 h-4" />
                 Repositories
@@ -157,6 +165,10 @@ const FederatedNetwork = () => {
               <TabsTrigger value="network" className="gap-2">
                 <Link2 className="w-4 h-4" />
                 Network
+              </TabsTrigger>
+              <TabsTrigger value="history" className="gap-2">
+                <History className="w-4 h-4" />
+                Sync Log
               </TabsTrigger>
             </TabsList>
 
@@ -369,6 +381,13 @@ const FederatedNetwork = () => {
                     <div className="text-xs text-muted-foreground">Encryption</div>
                   </div>
                 </div>
+              </div>
+            </TabsContent>
+
+            {/* Sync History Tab */}
+            <TabsContent value="history">
+              <div className="card-scientific p-6">
+                <SyncHistoryLog />
               </div>
             </TabsContent>
           </Tabs>

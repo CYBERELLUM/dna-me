@@ -6,6 +6,56 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Helper to log sync operations to local database using fetch
+async function logSyncOperation(
+  operation: string,
+  nodeId: string,
+  status: string,
+  recordsSynced: number,
+  recordsFailed: number,
+  details: Record<string, unknown>,
+  errorMessage: string | null = null
+): Promise<void> {
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.log("[Federated Seed] Local Supabase not configured for logging");
+      return;
+    }
+    
+    const response = await fetch(`${supabaseUrl}/rest/v1/federation_sync_history`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": supabaseKey,
+        "Authorization": `Bearer ${supabaseKey}`,
+        "Prefer": "return=minimal"
+      },
+      body: JSON.stringify({
+        operation,
+        node_id: nodeId,
+        status,
+        records_synced: recordsSynced,
+        records_failed: recordsFailed,
+        details,
+        error_message: errorMessage,
+        completed_at: status !== "pending" && status !== "running" ? new Date().toISOString() : null,
+      })
+    });
+    
+    if (!response.ok) {
+      console.error("[Federated Seed] Failed to log sync:", await response.text());
+    } else {
+      console.log("[Federated Seed] Logged sync operation:", operation, status);
+    }
+  } catch (err) {
+    console.error("[Federated Seed] Failed to log sync operation:", err);
+  }
+}
+
+
 // Culminate H Labs 25-year research findings
 const genomicsInsights = [
   {
@@ -381,6 +431,21 @@ serve(async (req) => {
 
     console.log("[Federated Seed] Complete. Inserted:", totalInserted, "Errors:", totalErrors);
     console.log("[Federated Seed] Security patterns shared:", results.security_knowledge.inserted);
+
+    // Log the sync operation
+    await logSyncOperation(
+      "seed",
+      nodeId,
+      totalInserted > 0 ? "completed" : "failed",
+      totalInserted,
+      totalErrors,
+      { 
+        genomics: results.genomics_insights.inserted,
+        knowledge: results.knowledge_base.inserted,
+        security: results.security_knowledge.inserted
+      },
+      totalErrors > 0 ? `${totalErrors} records failed to sync` : null
+    );
 
     return new Response(
       JSON.stringify({
