@@ -6,6 +6,47 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Helper to log sync operations to local database using fetch
+async function logSyncOperation(
+  operation: string,
+  nodeId: string,
+  status: string,
+  recordsSynced: number,
+  recordsFailed: number,
+  details: Record<string, unknown>,
+  errorMessage: string | null = null
+): Promise<void> {
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    
+    if (!supabaseUrl || !supabaseKey) return;
+    
+    await fetch(`${supabaseUrl}/rest/v1/federation_sync_history`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": supabaseKey,
+        "Authorization": `Bearer ${supabaseKey}`,
+        "Prefer": "return=minimal"
+      },
+      body: JSON.stringify({
+        operation,
+        node_id: nodeId,
+        status,
+        records_synced: recordsSynced,
+        records_failed: recordsFailed,
+        details,
+        error_message: errorMessage,
+        completed_at: new Date().toISOString(),
+      })
+    });
+  } catch (err) {
+    console.error("[Federated Query] Failed to log:", err);
+  }
+}
+
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -78,6 +119,9 @@ serve(async (req) => {
 
       console.log("[Federated Core] Query result:", data?.length || 0, "records, total:", count);
 
+      // Log the query operation
+      await logSyncOperation("query", nodeId, "completed", data?.length || 0, 0, { table, limit });
+
       return new Response(
         JSON.stringify({
           success: true,
@@ -138,6 +182,9 @@ serve(async (req) => {
     };
 
     console.log("[Federated Core] Discovery complete");
+
+    // Log the discovery operation
+    await logSyncOperation("discover", nodeId, "completed", availableTables.reduce((sum, t) => sum + t.count, 0), 0, { tablesFound: availableTables.length });
 
     return new Response(JSON.stringify(response), {
       status: 200,
