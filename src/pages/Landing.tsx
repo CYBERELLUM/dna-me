@@ -52,7 +52,7 @@ const Landing = () => {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
               <Link
-                to="/auth"
+                to="/dashboard"
                 className="btn-primary flex items-center gap-2 px-8 py-3 text-lg"
               >
                 Get Started
