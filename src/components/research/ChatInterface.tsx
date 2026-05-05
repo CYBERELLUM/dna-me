@@ -63,6 +63,14 @@ export const ChatInterface = () => {
     scrollToBottom();
   }, [messages]);
 
+  // Pre-fill input from the Mission Wizard, if the user just chose a mission.
+  useEffect(() => {
+    const pending = consumePendingMissionPrompt();
+    if (pending) {
+      setInput((cur) => (cur ? cur : pending + " "));
+    }
+  }, []);
+
   useEffect(() => {
     // Initialize speech recognition
     const SpeechRecognitionAPI =
