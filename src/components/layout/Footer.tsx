@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Dna, Mail, Github, Linkedin, Twitter } from "lucide-react";
 import cyberellumLogo from "@/assets/cyberellum-logo.png";
+import axiomBadge from "@/assets/axiom-compliance-badge.png";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
