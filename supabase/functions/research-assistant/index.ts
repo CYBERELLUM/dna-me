@@ -210,11 +210,68 @@ interface WebSearchResult {
 
 // Live web search via Perplexity sonar-pro for recent citations,
 // medical journals, preprints, and news beyond the model's training cutoff.
-async function queryWebSearch(query: string): Promise<WebSearchResult> {
+interface ResearchFilters {
+  dateFrom?: string;
+  dateTo?: string;
+  recency?: "any" | "day" | "week" | "month" | "year";
+  journals?: string[];
+  studyType?: string;
+  species?: string;
+  technique?: string;
+}
+
+function buildFilterDirective(f?: ResearchFilters | null): string {
+  if (!f) return "";
+  const parts: string[] = [];
+  if (f.studyType && f.studyType !== "Any") parts.push(`Study type: ${f.studyType}`);
+  if (f.species && f.species !== "Any") parts.push(`Species / model: ${f.species}`);
+  if (f.technique && f.technique !== "Any") parts.push(`Technique / assay: ${f.technique}`);
+  if (f.journals && f.journals.length) parts.push(`Restrict sources to these venues: ${f.journals.join(", ")}`);
+  if (f.dateFrom) parts.push(`Published on or after ${f.dateFrom}`);
+  if (f.dateTo) parts.push(`Published on or before ${f.dateTo}`);
+  if (!parts.length) return "";
+  return `\n\n[USER FILTERS — only return sources that satisfy ALL of these constraints]\n- ${parts.join("\n- ")}\nIf no qualifying sources exist, say so explicitly rather than returning unrelated material.`;
+}
+
+function toMMDDYYYY(iso?: string): string | undefined {
+  if (!iso) return undefined;
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return undefined;
+  return `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}/${d.getFullYear()}`;
+}
+
+async function queryWebSearch(query: string, filters?: ResearchFilters | null): Promise<WebSearchResult> {
   const PERPLEXITY_API_KEY = Deno.env.get("PERPLEXITY_API_KEY");
   if (!PERPLEXITY_API_KEY) {
     return { available: false, content: "", citations: [], error: "PERPLEXITY_API_KEY not configured" };
   }
+
+  const filterDirective = buildFilterDirective(filters);
+  const recency = filters?.recency && filters.recency !== "any" ? filters.recency : "year";
+
+  const body: any = {
+    model: "sonar-pro",
+    messages: [
+      {
+        role: "system",
+        content:
+          "You are a biomedical literature retrieval agent. For the user's query, surface the most recent, highest-quality primary sources: peer-reviewed journals (Nature, Cell, NEJM, Lancet, Genome Research, Bioinformatics), reputable preprints (bioRxiv, medRxiv), authoritative databases (PubMed, NCBI, ClinVar, gnomAD, Ensembl, UniProt, WHO, CDC, NIH). Return a tight synthesis (≤300 words) of what the recent literature actually says, then a numbered list of the 5–8 most relevant sources with title, venue, year, and URL. If the topic requires access to a paywalled database or specialized API (e.g., UK Biobank, dbGaP, Clarivate, Cochrane), explicitly recommend the user obtain credentials or add that API.",
+      },
+      { role: "user", content: `${query}${filterDirective}` },
+    ],
+    temperature: 0.2,
+    max_tokens: 1200,
+    search_recency_filter: recency,
+    return_citations: true,
+  };
+
+  if (filters?.journals && filters.journals.length) {
+    body.search_domain_filter = filters.journals.slice(0, 10);
+  }
+  const after = toMMDDYYYY(filters?.dateFrom);
+  const before = toMMDDYYYY(filters?.dateTo);
+  if (after) body.search_after_date_filter = after;
+  if (before) body.search_before_date_filter = before;
 
   try {
     const response = await fetch("https://api.perplexity.ai/chat/completions", {
@@ -223,22 +280,9 @@ async function queryWebSearch(query: string): Promise<WebSearchResult> {
         Authorization: `Bearer ${PERPLEXITY_API_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        model: "sonar-pro",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are a biomedical literature retrieval agent. For the user's query, surface the most recent, highest-quality primary sources: peer-reviewed journals (Nature, Cell, NEJM, Lancet, Genome Research, Bioinformatics), reputable preprints (bioRxiv, medRxiv), authoritative databases (PubMed, NCBI, ClinVar, gnomAD, Ensembl, UniProt, WHO, CDC, NIH). Return a tight synthesis (≤300 words) of what the recent literature actually says, then a numbered list of the 5–8 most relevant sources with title, venue, year, and URL. If the topic requires access to a paywalled database or specialized API (e.g., UK Biobank, dbGaP, Clarivate, Cochrane), explicitly recommend the user obtain credentials or add that API.",
-          },
-          { role: "user", content: query },
-        ],
-        temperature: 0.2,
-        max_tokens: 1200,
-        search_recency_filter: "year",
-        return_citations: true,
-      }),
+      body: JSON.stringify(body),
     });
+
 
     if (!response.ok) {
       const error = await response.text();
@@ -411,7 +455,7 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, mode } = await req.json();
+    const { messages, mode, filters } = await req.json();
     const researchMode: ResearchMode = mode || "general";
 
     const MULTI_AI_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -446,7 +490,7 @@ serve(async (req) => {
     const lastUserMessage = messages[messages.length - 1]?.content || "";
     const [federatedKnowledge, webSearch] = await Promise.all([
       queryFederatedCore(),
-      queryWebSearch(lastUserMessage),
+      queryWebSearch(lastUserMessage, filters),
     ]);
 
     // Build context from federated knowledge
