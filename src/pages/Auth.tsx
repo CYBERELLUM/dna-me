@@ -25,7 +25,7 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [requestedRole, setRequestedRole] = useState<"user" | "admin" | "developer">("user");
+  const [requestedRole, setRequestedRole] = useState<"user" | "patient" | "practitioner" | "developer" | "admin">("user");
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
   useEffect(() => {
@@ -101,8 +101,10 @@ const Auth = () => {
           }
         } else if (data.user) {
           setShowEmailConfirmation(true);
-          if (requestedRole !== "user") {
-            toast.success(`Verify your email. ${requestedRole === "admin" ? "Admin" : "Developer"} access requires approval from ceo@cyberellum.technology.`);
+          const needsApproval = ["admin", "developer", "practitioner"].includes(requestedRole);
+          if (needsApproval) {
+            const label = requestedRole.charAt(0).toUpperCase() + requestedRole.slice(1);
+            toast.success(`Verify your email. ${label} access requires approval from ceo@cyberellum.technology.`);
           } else {
             toast.success("Please check your email to verify your account");
           }
@@ -245,25 +247,32 @@ const Auth = () => {
           {!isLogin && (
             <div>
               <label className="block text-sm text-muted-foreground mb-2">Account Type</label>
-              <div className="grid grid-cols-3 gap-2">
-                {(["user", "developer", "admin"] as const).map((r) => (
+              <div className="grid grid-cols-2 gap-2">
+                {([
+                  { value: "user", label: "Subscriber", desc: "General research access" },
+                  { value: "patient", label: "Patient", desc: "Personal genomics & health" },
+                  { value: "practitioner", label: "Practitioner", desc: "Clinician / care provider" },
+                  { value: "developer", label: "Developer", desc: "API & integration access" },
+                  { value: "admin", label: "Admin", desc: "Platform administration" },
+                ] as const).map((r) => (
                   <button
                     type="button"
-                    key={r}
-                    onClick={() => setRequestedRole(r)}
-                    className={`px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
-                      requestedRole === r
+                    key={r.value}
+                    onClick={() => setRequestedRole(r.value)}
+                    className={`px-3 py-2 rounded-lg text-left text-xs font-medium border transition-colors ${
+                      requestedRole === r.value
                         ? "border-primary bg-primary/10 text-foreground"
                         : "border-border bg-secondary/30 text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    {r === "user" ? "User" : r === "developer" ? "Developer" : "Admin"}
+                    <div className="font-semibold">{r.label}</div>
+                    <div className="text-[10px] opacity-70 mt-0.5">{r.desc}</div>
                   </button>
                 ))}
               </div>
-              {requestedRole !== "user" && (
+              {["admin", "developer", "practitioner"].includes(requestedRole) && (
                 <p className="text-xs text-amber-500 mt-2">
-                  ⚠ {requestedRole === "admin" ? "Admin" : "Developer"} access requires manual approval. Email{" "}
+                  ⚠ {requestedRole.charAt(0).toUpperCase() + requestedRole.slice(1)} access requires manual approval. Email{" "}
                   <a href="mailto:ceo@cyberellum.technology" className="underline">ceo@cyberellum.technology</a> for approval.
                 </p>
               )}
