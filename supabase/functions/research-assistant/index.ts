@@ -467,7 +467,7 @@ serve(async (req) => {
       throw new Error("AI Gateway key is not configured");
     }
 
-    // Derive user identity from JWT only — never trust a client-supplied userId
+    // Require a valid authenticated user — block unauthenticated AI gateway usage
     let userId: string | null = null;
     const authHeader = req.headers.get("Authorization");
     if (authHeader?.startsWith("Bearer ") && SUPABASE_URL && SUPABASE_ANON_KEY) {
@@ -481,6 +481,11 @@ serve(async (req) => {
       } catch (e) {
         console.warn("[Research] Could not verify JWT:", e);
       }
+    }
+    if (!userId) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     console.log("[Research] Processing query with messages:", messages.length, "mode:", researchMode);

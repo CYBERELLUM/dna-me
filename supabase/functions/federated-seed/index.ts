@@ -354,6 +354,31 @@ serve(async (req) => {
   }
 
   try {
+    // Require an authenticated admin user
+    const SUPABASE_URL_ENV = Deno.env.get("SUPABASE_URL");
+    const SUPABASE_ANON = Deno.env.get("SUPABASE_ANON_KEY");
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ") || !SUPABASE_URL_ENV || !SUPABASE_ANON) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const userClient = createClient(SUPABASE_URL_ENV, SUPABASE_ANON, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: userData } = await userClient.auth.getUser();
+    if (!userData?.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const { data: isAdmin } = await userClient.rpc("is_admin", { _user_id: userData.user.id });
+    if (!isAdmin) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { action = "seed" } = await req.json();
 
     console.log("[Federated Seed] Starting seed operation");
@@ -466,10 +491,8 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error("[Federated Seed] Error:", error);
-    const errorMessage = error instanceof Error ? error.message : "Seed operation failed";
-
     return new Response(
-      JSON.stringify({ success: false, message: errorMessage }),
+      JSON.stringify({ success: false, message: "Internal server error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
