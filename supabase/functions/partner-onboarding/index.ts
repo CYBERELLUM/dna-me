@@ -104,7 +104,7 @@ serve(async (req) => {
     if (!aiResp.ok) {
       const err = await aiResp.text();
       console.error("AI gateway error", aiResp.status, err);
-      return new Response(JSON.stringify({ error: "AI request failed", detail: err }), {
+      return new Response(JSON.stringify({ error: "AI request failed" }), {
         status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -127,7 +127,7 @@ serve(async (req) => {
     }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (e) {
     console.error("partner-onboarding error", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "unknown" }), {
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }

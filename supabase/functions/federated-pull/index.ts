@@ -209,10 +209,8 @@ serve(async (req) => {
 
   } catch (error) {
     console.error("[Federated Pull] Error:", error);
-    const errorMessage = error instanceof Error ? error.message : "Pull operation failed";
-
     return new Response(
-      JSON.stringify({ success: false, message: errorMessage }),
+      JSON.stringify({ success: false, message: "Internal server error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

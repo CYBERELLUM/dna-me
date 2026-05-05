@@ -208,12 +208,10 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error("[Federated Core] Error:", error);
-    const errorMessage = error instanceof Error ? error.message : "Failed to query Federated Core";
-
     return new Response(
       JSON.stringify({
         success: false,
-        message: errorMessage,
+        message: "Internal server error",
         node: null,
       }),
       {

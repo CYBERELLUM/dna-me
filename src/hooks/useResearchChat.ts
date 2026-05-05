@@ -67,7 +67,10 @@ export const useResearchChat = () => {
       // derive identity from the JWT instead of trusting a client-supplied userId.
       const { supabase } = await import("@/integrations/supabase/client");
       const { data: { session } } = await supabase.auth.getSession();
-      const bearer = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      if (!session?.access_token) {
+        throw new Error("Please sign in to use the research assistant.");
+      }
+      const bearer = session.access_token;
 
       const response = await fetch(CHAT_URL, {
         method: "POST",
