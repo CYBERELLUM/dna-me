@@ -10,13 +10,6 @@ import { Lock, Eye, EyeOff, Shield, ArrowLeft, Crown } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 
-// Admin emails that can see internal AI provider details
-const ADMIN_EMAILS = [
-  "ceo@cyberellum.technology",
-  "coo@cyberellum.technology",
-  "cto@cyberellum.technology",
-];
-
 const APISettings = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -24,8 +17,18 @@ const APISettings = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  const isAdmin = user?.email && ADMIN_EMAILS.includes(user.email.toLowerCase());
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!user?.id) { setIsAdmin(false); return; }
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data } = await supabase.rpc("is_admin", { _user_id: user.id });
+      if (!cancelled) setIsAdmin(Boolean(data));
+    })();
+    return () => { cancelled = true; };
+  }, [user?.id]);
 
   // Auth gate temporarily disabled for open access
 

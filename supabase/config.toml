@@ -4,10 +4,10 @@ project_id = "wymznknyhbsiqycrsduj"
 verify_jwt = false
 
 [functions.nutrigenomics-forecast]
-verify_jwt = false
+verify_jwt = true
 
 [functions.send-nutrigenomics-report]
-verify_jwt = false
+verify_jwt = true
 
 [functions.federated-query]
 verify_jwt = false
@@ -28,7 +28,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.partner-onboarding]
-verify_jwt = false
+verify_jwt = true
 
 [functions.partner-issue-key]
-verify_jwt = false
+verify_jwt = true

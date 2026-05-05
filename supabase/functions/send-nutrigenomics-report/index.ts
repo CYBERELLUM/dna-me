@@ -1,10 +1,20 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+function escapeHtml(s: unknown): string {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
 interface NutrigenomicsReportRequest {
   recipientEmail: string;
@@ -22,7 +32,10 @@ interface NutrigenomicsReportRequest {
 }
 
 const generateReportHtml = (data: NutrigenomicsReportRequest): string => {
-  const { cellularData, selectedCompound, aiInsights, recipientName } = data;
+  const { cellularData, selectedCompound: rawCompound, aiInsights: rawInsights, recipientName: rawName } = data;
+  const recipientName = escapeHtml(rawName);
+  const selectedCompound = rawCompound ? escapeHtml(rawCompound) : "";
+  const aiInsights = rawInsights ? escapeHtml(rawInsights) : "";
   
   const getStatusColor = (value: number, inverse: boolean = false) => {
     const adjusted = inverse ? 1 - value : value;
@@ -207,10 +220,29 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const requestData: NutrigenomicsReportRequest = await req.json();
-    console.log("Request data:", JSON.stringify(requestData, null, 2));
+    // Require authenticated user
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ success: false, error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } },
+    );
+    const { data: userData, error: userErr } = await supabase.auth.getUser();
+    if (userErr || !userData?.user) {
+      return new Response(JSON.stringify({ success: false, error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
-    const { recipientEmail, recipientName, cellularData, selectedCompound, aiInsights } = requestData;
+    const requestData: NutrigenomicsReportRequest = await req.json();
+    console.log("Request from user:", userData.user.id);
+
+    const { recipientEmail } = requestData;
 
     if (!recipientEmail) {
       throw new Error("Recipient email is required");
