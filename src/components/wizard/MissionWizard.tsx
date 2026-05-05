@@ -129,6 +129,22 @@ export const MissionWizard = () => {
   const [selected, setSelected] = useState<Mission | null>(null);
   const [customPrompt, setCustomPrompt] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [isPatient, setIsPatient] = useState(false);
+  const [intakeComplete, setIntakeComplete] = useState(false);
+
+  // Detect patient role + intake status whenever user resolves
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const [{ data: roles }, { data: intake }] = await Promise.all([
+        supabase.from("user_roles").select("role").eq("user_id", user.id),
+        supabase.from("patient_intake").select("completed").eq("user_id", user.id).maybeSingle(),
+      ]);
+      const patient = !!roles?.some((r: any) => r.role === "patient");
+      setIsPatient(patient);
+      setIntakeComplete(!!intake?.completed);
+    })();
+  }, [user]);
 
   // Open once per session, after auth resolves and a user is present
   useEffect(() => {
