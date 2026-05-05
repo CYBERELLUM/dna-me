@@ -23,6 +23,7 @@ import {
   ACCEPT_ATTR,
   type ParsedFile,
 } from "@/lib/fileParser";
+import { consumePendingMissionPrompt } from "@/components/wizard/MissionWizard";
 import jsPDF from "jspdf";
 
 // Type declarations for Web Speech API
