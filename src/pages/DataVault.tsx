@@ -168,7 +168,7 @@ const DataVault = () => {
               </p>
               <button className="btn-secondary" disabled>
                 <Lock className="w-4 h-4 mr-2" />
-                Join Waitlist (Coming Q1 2026)
+                Join Waitlist (Coming Q3 2026)
               </button>
             </div>
           </div>
