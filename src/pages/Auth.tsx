@@ -25,7 +25,7 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [requestedRole, setRequestedRole] = useState<"user" | "admin" | "developer">("user");
+  const [requestedRole, setRequestedRole] = useState<"user" | "patient" | "practitioner" | "developer" | "admin">("user");
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
   useEffect(() => {
