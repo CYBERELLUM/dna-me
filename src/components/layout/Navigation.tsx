@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, BookOpen, Database, Search, Dna, Box, Leaf, Globe, Newspaper, Shield, FlaskConical, ShieldCheck, Network, Code2 } from "lucide-react";
+import { Menu, BookOpen, Database, Search, Dna, Box, Leaf, Newspaper, Shield, FlaskConical, ShieldCheck, Network, Code2, Handshake } from "lucide-react";
 import { UserMenu } from "@/components/auth/UserMenu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -12,7 +12,7 @@ const navItems = [
   { path: "/sequences", label: "Sequences", icon: Dna },
   { path: "/notebook", label: "Notebook", icon: FlaskConical },
   { path: "/data-vault", label: "Vault", icon: Database },
-  { path: "/federated-network", label: "Network", icon: Globe },
+  { path: "/collaborate", label: "Collaborate", icon: Handshake },
   { path: "/vertex-validation", label: "Vertex", icon: ShieldCheck },
   { path: "/middleware", label: "Middleware", icon: Network },
   { path: "/developers", label: "Developers", icon: Code2 },

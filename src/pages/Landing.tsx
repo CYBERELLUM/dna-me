@@ -171,14 +171,14 @@ const Landing = () => {
               <div className="glass-panel p-6 rounded-xl border border-border">
                 <h3 className="font-semibold text-foreground mb-2">Governed Exchange</h3>
                 <p className="text-sm text-muted-foreground">
-                  Every signal, doctrine, and insight passes audit, fabrication checks, and
+                  Every signal, protocol, and insight passes audit, fabrication checks, and
                   authenticity verification before it propagates.
                 </p>
               </div>
               <div className="glass-panel p-6 rounded-xl border border-border">
-                <h3 className="font-semibold text-foreground mb-2">Federated by Design</h3>
+                <h3 className="font-semibold text-foreground mb-2">Sovereign by Design</h3>
                 <p className="text-sm text-muted-foreground">
-                  Sovereign nodes retain custody of their data. The fabric coordinates trust and
+                  Partners retain custody of their data. The fabric coordinates trust and
                   routing — not ownership.
                 </p>
               </div>
@@ -192,7 +192,14 @@ const Landing = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link to="/middleware" className="btn-primary inline-flex items-center gap-2 px-6 py-3">
+              <Link to="/collaborate" className="btn-primary inline-flex items-center gap-2 px-6 py-3">
+                Start Partner Onboarding
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                to="/middleware"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-md border border-border text-foreground hover:bg-secondary transition-colors"
+              >
                 Explore the Fabric
                 <ArrowRight className="w-4 h-4" />
               </Link>

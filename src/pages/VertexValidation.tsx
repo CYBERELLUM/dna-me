@@ -70,7 +70,7 @@ const VertexValidation = () => {
             })) || [],
             evolution_metrics: [
               { metric_type: 'security_patterns_learned', value: 8 },
-              { metric_type: 'federation_syncs', value: 22 },
+              { metric_type: 'partner_syncs', value: 22 },
               { metric_type: 'knowledge_entries', value: labNotes?.length || 0 }
             ],
             api_logs: [
@@ -79,8 +79,8 @@ const VertexValidation = () => {
               { provider: 'database', status: 200, latency: 80 }
             ],
             sync_logs: [
-              { target: 'federated-core', status: 'success', records: 22 },
-              { target: 'federated-core', status: 'partial', records: 8 }
+              { target: 'knowledge-core', status: 'success', records: 22 },
+              { target: 'knowledge-core', status: 'partial', records: 8 }
             ]
           }
         }
@@ -102,7 +102,6 @@ const VertexValidation = () => {
     
     setIsPushing(true);
     try {
-      // Push verification result to federation core
       const response = await supabase.functions.invoke('federated-seed', {
         body: {
           push_verification: true,
@@ -111,10 +110,10 @@ const VertexValidation = () => {
       });
 
       if (response.error) throw response.error;
-      toast.success('Verification pushed to Federation Core');
+      toast.success('Verification pushed to Knowledge Core');
     } catch (error) {
       console.error('Push error:', error);
-      toast.error('Failed to push to federation');
+      toast.error('Failed to push verification');
     } finally {
       setIsPushing(false);
     }
@@ -283,7 +282,7 @@ const VertexValidation = () => {
                         </div>
                       </div>
 
-                      {/* Push to Federation */}
+                      {/* Push to Knowledge Core */}
                       <Button 
                         onClick={pushToFederation}
                         disabled={isPushing}
@@ -293,12 +292,12 @@ const VertexValidation = () => {
                         {isPushing ? (
                           <>
                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Pushing to Federation...
+                            Pushing…
                           </>
                         ) : (
                           <>
                             <Globe className="w-4 h-4 mr-2" />
-                            Push Verification to Federation Core
+                            Push Verification to Knowledge Core
                           </>
                         )}
                       </Button>
@@ -329,7 +328,7 @@ const VertexValidation = () => {
         {/* Footer Status */}
         <div className="flex items-center justify-between text-xs text-muted-foreground font-mono">
           <div className="flex items-center gap-2">
-            <span>VERTEX-SATELLITE v1.0</span>
+            <span>VERTEX-VERIFY v1.0</span>
             <span className="flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
               All Systems Nominal
@@ -338,7 +337,7 @@ const VertexValidation = () => {
           <div className="flex items-center gap-4">
             <span>Uptime: 99.97%</span>
             <span>Latency: 23ms</span>
-            <span>Federation: Active</span>
+            <span>Network: Active</span>
           </div>
         </div>
       </div>

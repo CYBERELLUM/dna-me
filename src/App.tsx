@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Landing from "./pages/Landing";
 import Index from "./pages/Index";
@@ -12,7 +12,6 @@ import DataVault from "./pages/DataVault";
 import Sequences from "./pages/Sequences";
 import Visualizations3D from "./pages/Visualizations3D";
 import NutrigenomicsForecasting from "./pages/NutrigenomicsForecasting";
-import FederatedNetwork from "./pages/FederatedNetwork";
 import VertexValidation from "./pages/VertexValidation";
 import Blogs from "./pages/Blogs";
 import About from "./pages/About";
@@ -22,6 +21,7 @@ import Auth from "./pages/Auth";
 import Security from "./pages/Security";
 import Middleware from "./pages/Middleware";
 import Developers from "./pages/Developers";
+import Collaborate from "./pages/Collaborate";
 import APISettings from "./pages/APISettings";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -38,7 +38,6 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/dashboard" element={<Index />} />
-            {/* Auth route temporarily disabled */}
             <Route path="/security" element={<Security />} />
             <Route path="/api-settings" element={<APISettings />} />
             <Route path="/settings" element={<Settings />} />
@@ -48,7 +47,9 @@ const App = () => (
             <Route path="/visualizations" element={<Visualizations3D />} />
             <Route path="/nutrigenomics" element={<NutrigenomicsForecasting />} />
             <Route path="/data-vault" element={<DataVault />} />
-            <Route path="/federated-network" element={<FederatedNetwork />} />
+            <Route path="/collaborate" element={<Collaborate />} />
+            {/* legacy redirect */}
+            <Route path="/federated-network" element={<Navigate to="/collaborate" replace />} />
             <Route path="/vertex-validation" element={<VertexValidation />} />
             <Route path="/middleware" element={<Middleware />} />
             <Route path="/developers" element={<Developers />} />

@@ -204,7 +204,7 @@ const APISettings = () => {
                     </div>
                     <div className="p-3 bg-background/50 rounded-lg border border-border">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium">Federated Core</span>
+                        <span className="text-sm font-medium">Knowledge Core</span>
                         <span className="px-2 py-0.5 text-xs bg-cyan-500/20 text-cyan-400 rounded">KNOWLEDGE</span>
                       </div>
                       <p className="text-xs text-muted-foreground">25-year longitudinal research data</p>

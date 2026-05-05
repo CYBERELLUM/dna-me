@@ -73,7 +73,7 @@ const Privacy = () => {
                 </p>
                 <ul className="list-disc list-inside text-muted-foreground mt-2 space-y-1">
                   <li>Service providers who assist in platform operations</li>
-                  <li>Federated research networks with your consent</li>
+                  <li>Collaboration partner networks with your consent</li>
                   <li>Legal authorities when required by law</li>
                 </ul>
               </section>

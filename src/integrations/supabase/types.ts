@@ -446,6 +446,98 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_documents: {
+        Row: {
+          created_at: string
+          filename: string
+          id: string
+          mime_type: string | null
+          parsed_at: string | null
+          partner_id: string
+          size_bytes: number | null
+          storage_path: string
+          summary: string | null
+        }
+        Insert: {
+          created_at?: string
+          filename: string
+          id?: string
+          mime_type?: string | null
+          parsed_at?: string | null
+          partner_id: string
+          size_bytes?: number | null
+          storage_path: string
+          summary?: string | null
+        }
+        Update: {
+          created_at?: string
+          filename?: string
+          id?: string
+          mime_type?: string | null
+          parsed_at?: string | null
+          partner_id?: string
+          size_bytes?: number | null
+          storage_path?: string
+          summary?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_documents_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partners: {
+        Row: {
+          api_key_hash: string | null
+          api_key_prefix: string | null
+          capabilities: Json | null
+          contact_email: string | null
+          contract_payload: Json | null
+          created_at: string
+          created_by: string | null
+          id: string
+          intake_summary: string | null
+          organization_name: string
+          partner_type: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          api_key_hash?: string | null
+          api_key_prefix?: string | null
+          capabilities?: Json | null
+          contact_email?: string | null
+          contract_payload?: Json | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          intake_summary?: string | null
+          organization_name: string
+          partner_type?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          api_key_hash?: string | null
+          api_key_prefix?: string | null
+          capabilities?: Json | null
+          contact_email?: string | null
+          contract_payload?: Json | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          intake_summary?: string | null
+          organization_name?: string
+          partner_type?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

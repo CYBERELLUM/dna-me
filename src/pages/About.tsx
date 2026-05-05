@@ -55,7 +55,7 @@ const About = () => {
               <p className="text-muted-foreground leading-relaxed">
                 We envision a future where personalized medicine is the norm, where genetic insights guide 
                 preventive healthcare, and where the boundaries of human healthspan are continually extended. 
-                Through federated data networks and AI-powered analysis, we're building the infrastructure 
+                Through collaborative partner networks and AI-powered analysis, we're building the infrastructure 
                 for this future today.
               </p>
             </div>
@@ -73,7 +73,7 @@ const About = () => {
                 <Globe className="w-8 h-8 text-science mx-auto mb-3" />
                 <h3 className="font-semibold text-foreground mb-2">Global Collaboration</h3>
                 <p className="text-sm text-muted-foreground">
-                  Connecting researchers across borders through federated data networks.
+                  Connecting researchers across borders through a collaborative partner network.
                 </p>
               </div>
               <div className="card-scientific text-center">

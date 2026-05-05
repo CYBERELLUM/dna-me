@@ -27,7 +27,7 @@ const routeLabels: Record<string, string> = {
   "/visualizations": "3D Visualizations",
   "/nutrigenomics": "Nutrigenomics",
   "/data-vault": "Data Vault",
-  "/federated-network": "Federated Network",
+  "/collaborate": "Collaborate",
   "/vertex-validation": "Vertex Validation",
   "/blogs": "Blogs",
   "/about": "About",

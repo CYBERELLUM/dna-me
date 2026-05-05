@@ -8,26 +8,26 @@ import { Code2, Inbox, Download, ShieldCheck, GitBranch } from "lucide-react";
 const endpoints = [
   {
     icon: Inbox,
-    name: "federation-receiver",
-    purpose: "Inbound channel for doctrines, directives, and signals from partner nodes.",
-    method: "POST",
-  },
-  {
-    icon: Download,
-    name: "federated-pull",
-    purpose: "Retrieve curated datasets, doctrines, and synchronized state from the fabric.",
+    name: "partner-onboarding",
+    purpose: "Conversational intake with the PhD-persona AI — turn collaboration documents into a contract draft.",
     method: "POST",
   },
   {
     icon: GitBranch,
-    name: "federated-query",
-    purpose: "Read-only query surface against allow-listed federated tables, capped and audited.",
+    name: "partner-issue-key",
+    purpose: "Activate an approved contract and issue a one-time partner API key.",
+    method: "POST",
+  },
+  {
+    icon: Download,
+    name: "collab-pull",
+    purpose: "Retrieve curated datasets and synchronized state available to your partner tier.",
     method: "POST",
   },
   {
     icon: ShieldCheck,
     name: "vertex-verify",
-    purpose: "Authenticity and fabrication audit for participating nodes and submitted payloads.",
+    purpose: "Authenticity and fabrication audit for participating partners and submitted payloads.",
     method: "POST",
   },
 ];
@@ -52,7 +52,7 @@ const Developers = () => {
             </h1>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
               A small set of governed endpoints lets any platform or healing protocol participate
-              in the federation as a first-class node.
+              as a first-class collaboration partner.
             </p>
           </div>
 
@@ -81,10 +81,10 @@ const Developers = () => {
             <h2 className="text-2xl font-bold text-foreground mb-3">Governance Guarantees</h2>
             <ul className="space-y-2 text-muted-foreground text-sm list-disc pl-5">
               <li>Every inbound payload is audit-logged with source, validation status, and processing time.</li>
-              <li>Fabrication detection runs on submitted doctrines and signals before they propagate.</li>
-              <li>Authenticity of nodes is continuously re-verified through the vertex audit channel.</li>
-              <li>Reads are constrained to an allow-list of federated tables and capped result sizes.</li>
-              <li>Sovereign nodes retain custody of raw data; the fabric coordinates trust and routing.</li>
+              <li>Fabrication detection runs on submitted protocols and signals before they propagate.</li>
+              <li>Partner authenticity is continuously re-verified through the vertex audit channel.</li>
+              <li>Reads are constrained to an allow-list of shared tables and capped result sizes.</li>
+              <li>Partners retain sovereign custody of raw data; the fabric coordinates trust and routing.</li>
             </ul>
           </section>
         </div>

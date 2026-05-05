@@ -44,7 +44,7 @@ const Middleware = () => {
               An <span className="text-gradient-primary">Interoperability Fabric</span> for Healing Systems
             </h1>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-              More than a research platform — a federated middleware layer that conjoins clinical,
+              More than a research platform — a collaborative middleware layer that conjoins clinical,
               research, AI, sensor, and ecological systems through a single governed protocol.
             </p>
           </div>
@@ -66,9 +66,9 @@ const Middleware = () => {
             </div>
             <div className="card-scientific text-center">
               <Network className="w-8 h-8 text-science mx-auto mb-3" />
-              <h3 className="font-semibold text-foreground mb-2">Federated by Design</h3>
+              <h3 className="font-semibold text-foreground mb-2">Sovereign by Design</h3>
               <p className="text-sm text-muted-foreground">
-                Sovereign nodes retain their data; the fabric coordinates trust, not custody.
+                Partner nodes retain their data; the fabric coordinates trust, not custody.
               </p>
             </div>
           </div>
@@ -97,13 +97,19 @@ const Middleware = () => {
           <section className="card-longevity text-center">
             <h2 className="text-2xl font-bold text-foreground mb-3">Integrate Your System</h2>
             <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-              Explore the public middleware contract — endpoints, payload shapes, and governance
-              guarantees that let any platform or protocol join the fabric.
+              Start a guided onboarding with our PhD intake AI. Upload your collaboration
+              documents and we'll draft your integration contract together.
             </p>
-            <Link to="/developers" className="btn-primary inline-flex items-center gap-2">
-              View Developer Surface
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+            <div className="flex flex-wrap justify-center gap-3">
+              <Link to="/collaborate" className="btn-primary inline-flex items-center gap-2">
+                Start Partner Onboarding
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link to="/developers" className="inline-flex items-center gap-2 px-6 py-3 rounded-md border border-border text-foreground hover:bg-secondary transition-colors">
+                View Developer Surface
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
           </section>
         </div>
       </ParallaxSection>

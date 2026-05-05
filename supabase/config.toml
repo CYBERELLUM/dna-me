@@ -26,3 +26,9 @@ verify_jwt = false
 
 [functions.federation-receiver]
 verify_jwt = false
+
+[functions.partner-onboarding]
+verify_jwt = false
+
+[functions.partner-issue-key]
+verify_jwt = false

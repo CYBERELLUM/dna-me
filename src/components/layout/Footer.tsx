@@ -23,7 +23,7 @@ const Footer = () => {
               </div>
             </Link>
             <p className="text-sm text-muted-foreground mb-4">
-              Advanced genomics research platform powered by multi-AI synthesis with LLM, multimodal ML, GAN, and federated research networks.
+              Advanced genomics research platform powered by multi-AI synthesis with LLM, multimodal ML, GAN, and a collaborative partner network.
             </p>
             <div className="flex gap-3">
               <a href="#" className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground transition-colors">
@@ -69,8 +69,8 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/federated-network" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Federated Network
+                <Link to="/collaborate" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Collaboration Network
                 </Link>
               </li>
             </ul>
