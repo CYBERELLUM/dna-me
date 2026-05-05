@@ -20,6 +20,8 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Auth from "./pages/Auth";
 import Security from "./pages/Security";
+import Middleware from "./pages/Middleware";
+import Developers from "./pages/Developers";
 import APISettings from "./pages/APISettings";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -48,6 +50,8 @@ const App = () => (
             <Route path="/data-vault" element={<DataVault />} />
             <Route path="/federated-network" element={<FederatedNetwork />} />
             <Route path="/vertex-validation" element={<VertexValidation />} />
+            <Route path="/middleware" element={<Middleware />} />
+            <Route path="/developers" element={<Developers />} />
             <Route path="/blogs" element={<Blogs />} />
             <Route path="/about" element={<About />} />
             <Route path="/terms" element={<Terms />} />

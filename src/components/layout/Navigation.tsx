@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, BookOpen, Database, Search, Dna, Box, Leaf, Globe, Newspaper, Shield, FlaskConical, ShieldCheck } from "lucide-react";
+import { Menu, BookOpen, Database, Search, Dna, Box, Leaf, Globe, Newspaper, Shield, FlaskConical, ShieldCheck, Network, Code2 } from "lucide-react";
 import { UserMenu } from "@/components/auth/UserMenu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -14,6 +14,8 @@ const navItems = [
   { path: "/data-vault", label: "Vault", icon: Database },
   { path: "/federated-network", label: "Network", icon: Globe },
   { path: "/vertex-validation", label: "Vertex", icon: ShieldCheck },
+  { path: "/middleware", label: "Middleware", icon: Network },
+  { path: "/developers", label: "Developers", icon: Code2 },
 ];
 
 export const Navigation = () => {

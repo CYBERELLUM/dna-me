@@ -142,6 +142,71 @@ const Landing = () => {
           </div>
         </section>
 
+        {/* Middleware Positioning Section */}
+        <section className="py-24 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/30 rounded-full mb-4">
+                <Globe className="w-4 h-4 text-primary" />
+                <span className="text-sm font-mono text-primary">COLLABORATIVE MIDDLEWARE</span>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+                A Fabric for Healing Systems — Not Just Humans
+              </h2>
+              <p className="text-muted-foreground max-w-3xl mx-auto">
+                Beyond a research tool, the platform acts as an API concentrator and governed
+                gateway that conjoins clinical, research, AI, sensor, and ecological systems
+                into one interoperable protocol.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6 mb-10">
+              <div className="glass-panel p-6 rounded-xl border border-border">
+                <h3 className="font-semibold text-foreground mb-2">API Concentrator</h3>
+                <p className="text-sm text-muted-foreground">
+                  One contract for ingestion, validation, and routing across heterogeneous endpoints
+                  and partner platforms.
+                </p>
+              </div>
+              <div className="glass-panel p-6 rounded-xl border border-border">
+                <h3 className="font-semibold text-foreground mb-2">Governed Exchange</h3>
+                <p className="text-sm text-muted-foreground">
+                  Every signal, doctrine, and insight passes audit, fabrication checks, and
+                  authenticity verification before it propagates.
+                </p>
+              </div>
+              <div className="glass-panel p-6 rounded-xl border border-border">
+                <h3 className="font-semibold text-foreground mb-2">Federated by Design</h3>
+                <p className="text-sm text-muted-foreground">
+                  Sovereign nodes retain custody of their data. The fabric coordinates trust and
+                  routing — not ownership.
+                </p>
+              </div>
+              <div className="glass-panel p-6 rounded-xl border border-border">
+                <h3 className="font-semibold text-foreground mb-2">Built for Many Systems</h3>
+                <p className="text-sm text-muted-foreground">
+                  Human clinics, research labs, AI nodes, IoT biosensors, agricultural and
+                  veterinary genomics — all first-class participants.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link to="/middleware" className="btn-primary inline-flex items-center gap-2 px-6 py-3">
+                Explore the Fabric
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                to="/developers"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-md border border-border text-foreground hover:bg-secondary transition-colors"
+              >
+                Developer Surface
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* CTA Section */}
         <section className="py-24 px-4 sm:px-6 lg:px-8 bg-secondary/30">
           <div className="max-w-3xl mx-auto text-center">
