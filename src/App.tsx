@@ -25,6 +25,7 @@ import Collaborate from "./pages/Collaborate";
 import APISettings from "./pages/APISettings";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <ScrollToTop />
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/dashboard" element={<Index />} />
