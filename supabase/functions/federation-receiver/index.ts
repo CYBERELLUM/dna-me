@@ -83,7 +83,7 @@ const NODE_CAPABILITIES = {
   node_type: 'satellite',
   tier: MY_TIER,
   project_id: MY_PROJECT_ID,
-  acip_version: '2.5',
+  axiom_version: '2.5',
   federation_version: '2.0',
   capabilities: [
     'federation_sync', 'grls_hydration', 'doctrine_receive',
@@ -117,7 +117,7 @@ serve(async (req) => {
     if (validation.recommendation === 'reject') {
       await logAudit(supabase, sourceNode, actionType, validation, 400, 'Fabrication detected');
       return new Response(JSON.stringify({
-        success: false, acip_violation: true,
+        success: false, axiom_violation: true,
         reason: 'Content rejected due to fabrication indicators',
         node_id: MY_NODE_ID,
       }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
@@ -138,7 +138,7 @@ serve(async (req) => {
         await logAudit(supabase, sourceNode, actionType, validation, 200);
         return new Response(JSON.stringify({
           success: true, node_id: MY_NODE_ID, node_name: MY_NODE_NAME,
-          tier: MY_TIER, status: 'online', acip_enforced: true,
+          tier: MY_TIER, status: 'online', axiom_enforced: true,
           timestamp: new Date().toISOString(), latency_ms: Date.now() - startTime,
         }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
@@ -174,7 +174,7 @@ serve(async (req) => {
         await logAudit(supabase, sourceNode, actionType, validation, 200);
         return new Response(JSON.stringify({
           success: true, action: 'doctrine_sync', message: 'Doctrine synchronized',
-          node_id: MY_NODE_ID, acip_verified: validation.valid,
+          node_id: MY_NODE_ID, axiom_verified: validation.valid,
         }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
 
