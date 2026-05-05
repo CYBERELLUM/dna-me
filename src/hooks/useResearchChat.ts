@@ -36,7 +36,7 @@ export const useResearchChat = () => {
     clearHistory();
   };
 
-  const sendMessage = useCallback(async (input: string, mode?: ResearchMode) => {
+  const sendMessage = useCallback(async (input: string, mode?: ResearchMode, filters?: any) => {
     const currentMode = mode || researchMode;
     if (!input.trim() || isLoading) return;
 
@@ -78,6 +78,7 @@ export const useResearchChat = () => {
         body: JSON.stringify({
           messages: apiMessages,
           mode: currentMode,
+          filters: filters || null,
         }),
       });
 
