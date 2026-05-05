@@ -39,6 +39,7 @@ const App = () => (
           <ScrollToTop />
           <Routes>
             <Route path="/" element={<Landing />} />
+            <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Index />} />
             <Route path="/security" element={<Security />} />
             <Route path="/api-settings" element={<APISettings />} />
