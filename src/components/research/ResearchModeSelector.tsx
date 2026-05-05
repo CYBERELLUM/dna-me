@@ -106,7 +106,7 @@ export const ResearchModeSelector = ({
 };
 
 export const getSystemPromptForMode = (mode: ResearchMode): string => {
-  const base = `You are a highly specialized Research Assistant for genomics scientists, physicists, and experts in genomic engineering.`;
+  const base = `You are a highly specialized Genomics Oracle & Collaboration Lab assistant for genomics scientists, physicists, and experts in genomic engineering.`;
 
   const modePrompts: Record<ResearchMode, string> = {
     general: `${base}

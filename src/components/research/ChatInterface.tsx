@@ -123,7 +123,7 @@ export const ChatInterface = () => {
     }
     const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text("Research Assistant Conversation", 14, 18);
+    doc.text("Genomics Oracle & Collaboration Lab Conversation", 14, 18);
     doc.setFontSize(10);
     doc.setTextColor(100);
     doc.text(`Exported: ${new Date().toLocaleString()}`, 14, 25);

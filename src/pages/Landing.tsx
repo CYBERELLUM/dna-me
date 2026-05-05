@@ -108,7 +108,7 @@ const Landing = () => {
               {[
                 {
                   icon: Brain,
-                  title: "AI Research Assistant",
+                  title: "Genomics Oracle & Collaboration Lab",
                   description: "Multi-AI synthesis with citations from global research sources"
                 },
                 {

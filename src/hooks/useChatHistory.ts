@@ -23,7 +23,7 @@ export const useChatHistory = () => {
           id: "welcome",
           role: "assistant",
           content:
-            "Welcome to the Research Assistant. I'm your AI-powered concierge for genomics research. I can help you query multiple AI providers, search scientific databases, and synthesize research findings. How can I assist your research today?",
+            "Welcome to the Genomics Oracle & Collaboration Lab. I'm your AI-powered concierge for genomics research. I can help you query multiple AI providers, search scientific databases, and synthesize research findings. How can I assist your research today?",
           timestamp: new Date(),
         },
       ]);
@@ -47,7 +47,7 @@ export const useChatHistory = () => {
             id: "welcome",
             role: "assistant",
             content:
-              "Welcome to the Research Assistant. I'm your AI-powered concierge for genomics research. I can help you query multiple AI providers, search scientific databases, and synthesize research findings. How can I assist your research today?",
+              "Welcome to the Genomics Oracle & Collaboration Lab. I'm your AI-powered concierge for genomics research. I can help you query multiple AI providers, search scientific databases, and synthesize research findings. How can I assist your research today?",
             timestamp: new Date(),
           },
         ]);

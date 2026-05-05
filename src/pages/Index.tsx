@@ -88,7 +88,7 @@ const Index = () => {
                   {/* Logo */}
                   <img
                     src={cyberellumLogo}
-                    alt="Research assistant emblem"
+                    alt="Genomics Oracle emblem"
                     loading="lazy"
                     className="w-20 h-20 md:w-24 md:h-24 object-contain logo-glow relative z-10"
                   />

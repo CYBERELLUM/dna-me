@@ -136,7 +136,7 @@ function buildFederatedContext(federated: FederatedKnowledge, query: string): st
 }
 
 function getSystemPrompt(mode: ResearchMode, federatedContext: string): string {
-  const base = `You are a highly specialized Research Assistant for genomics scientists, physicists, and experts in genomic engineering.`;
+  const base = `You are a highly specialized Genomics Oracle & Collaboration Lab assistant for genomics scientists, physicists, and experts in genomic engineering.`;
 
   const federatedInstruction = federatedContext 
     ? `\n\nIMPORTANT: You have access to federated knowledge from connected research nodes. When relevant, incorporate this knowledge into your responses and cite the Federated Core as a source. The federated knowledge represents 25+ years of longitudinal research from Culminate H Labs on DNA damage, repair, and longevity.`
