@@ -455,7 +455,7 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, mode } = await req.json();
+    const { messages, mode, filters } = await req.json();
     const researchMode: ResearchMode = mode || "general";
 
     const MULTI_AI_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -490,7 +490,7 @@ serve(async (req) => {
     const lastUserMessage = messages[messages.length - 1]?.content || "";
     const [federatedKnowledge, webSearch] = await Promise.all([
       queryFederatedCore(),
-      queryWebSearch(lastUserMessage),
+      queryWebSearch(lastUserMessage, filters),
     ]);
 
     // Build context from federated knowledge
