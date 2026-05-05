@@ -137,8 +137,25 @@ const Footer = () => {
           </div>
         </div>
 
+        {/* AXIOM Compliance Badge */}
+        <div className="mt-12 pt-8 border-t border-border/50 flex flex-col md:flex-row items-center justify-center gap-4 text-center">
+          <img
+            src={axiomBadge}
+            alt="AXIOM Regulatory Compliance Badge"
+            className="w-20 h-20 object-contain drop-shadow-[0_0_12px_hsl(var(--primary)/0.3)]"
+          />
+          <div className="md:text-left">
+            <p className="text-sm font-semibold text-foreground tracking-wide">
+              AXIOM — Regulatory Compliant Governed AI
+            </p>
+            <p className="text-xs text-muted-foreground mt-1 max-w-md">
+              Regulation · Audit · Policy · Attestation. Every output passes through the AXIOM governance fabric.
+            </p>
+          </div>
+        </div>
+
         {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-border/50 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="mt-8 pt-6 border-t border-border/50 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
             © {currentYear} Cyberellum Technologies & Laboratory. All rights reserved.
           </p>
