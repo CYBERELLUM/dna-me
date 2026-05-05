@@ -56,7 +56,23 @@ serve(async (req) => {
   try {
     const { action = "discover", table, limit = 50 } = await req.json();
 
-    console.log("[Federated Core] Request:", { action, table, limit });
+    // Allowlist of tables that may be queried via this public endpoint
+    const ALLOWED_TABLES = new Set([
+      "knowledge_base",
+      "genomics_insights",
+      "research_data",
+      "federation_doctrines",
+    ]);
+    const safeLimit = Math.min(Math.max(Number(limit) || 50, 1), 100);
+
+    if (action === "query" && table && !ALLOWED_TABLES.has(String(table))) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Table not accessible" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log("[Federated Core] Request:", { action, table, limit: safeLimit });
 
     // Get federated connection details
     const federatedUrl = Deno.env.get("FEDERATED_SUPABASE_URL");
@@ -97,7 +113,7 @@ serve(async (req) => {
       const { data, error, count } = await federatedClient
         .from(table)
         .select("*", { count: "exact" })
-        .limit(limit);
+        .limit(safeLimit);
 
       if (error) {
         console.log("[Federated Core] Query error:", error.message);
