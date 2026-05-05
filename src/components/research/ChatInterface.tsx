@@ -17,6 +17,7 @@ import { ChatMessage } from "./ChatMessage";
 import { SourcesSheet } from "./SourcesSheet";
 import { QuickPrompts } from "./QuickPrompts";
 import { ResearchModeSelector } from "./ResearchModeSelector";
+import { SearchFilters, EMPTY_FILTERS, countActiveFilters, type ResearchFilters } from "./SearchFilters";
 import {
   parseFile,
   buildContextBlock,
@@ -51,6 +52,7 @@ export const ChatInterface = () => {
   const [activeSources, setActiveSources] = useState<string[]>([]);
   const [attachments, setAttachments] = useState<ParsedFile[]>([]);
   const [parsingFiles, setParsingFiles] = useState(false);
+  const [filters, setFilters] = useState<ResearchFilters>(EMPTY_FILTERS);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -131,7 +133,7 @@ export const ChatInterface = () => {
     const message = (input.trim() || "Please analyze the attached document(s).") + contextBlock;
     setInput("");
     setAttachments([]);
-    await sendMessage(message);
+    await sendMessage(message, undefined, filters);
   };
 
   const handleFilesSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -218,6 +220,7 @@ export const ChatInterface = () => {
             disabled={isLoading}
           />
           <div className="flex items-center gap-1">
+            <SearchFilters value={filters} onChange={setFilters} disabled={isLoading} />
             <button
               onClick={exportPDF}
               disabled={messages.length === 0}
