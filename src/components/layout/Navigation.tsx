@@ -31,8 +31,8 @@ export const Navigation = () => {
             <Dna className="w-6 h-6 text-primary" />
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1">
+          {/* Desktop Navigation - only at xl+ where all items fit */}
+          <div className="hidden xl:flex items-center gap-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -40,7 +40,7 @@ export const Navigation = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-300 ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 ${
                     isActive
                       ? "bg-primary/10 text-primary border border-primary/30"
                       : "text-muted-foreground hover:text-foreground hover:bg-secondary"
@@ -53,22 +53,24 @@ export const Navigation = () => {
             })}
           </div>
 
-          {/* User Menu */}
-          <div className="hidden md:flex items-center gap-4">
-            <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground">
+          {/* Right side: User Menu always visible + hamburger below xl */}
+          <div className="flex items-center gap-3">
+            <div className="hidden lg:flex items-center gap-2 text-xs font-mono text-muted-foreground">
               <div className="pulse-dot" />
               <span>Online</span>
             </div>
             <UserMenu />
-          </div>
 
-          {/* Mobile Menu Button */}
-          <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild>
-              <button className="md:hidden p-2 text-muted-foreground hover:text-foreground">
-                <Menu className="w-6 h-6" />
-              </button>
-            </SheetTrigger>
+            {/* Mobile/Tablet Menu Button - shown below xl */}
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild>
+                <button
+                  className="xl:hidden p-2 text-muted-foreground hover:text-foreground"
+                  aria-label="Open menu"
+                >
+                  <Menu className="w-6 h-6" />
+                </button>
+              </SheetTrigger>
             <SheetContent side="right" className="w-[300px] bg-background border-border p-0">
               <div className="flex flex-col h-full">
                 {/* Header */}
