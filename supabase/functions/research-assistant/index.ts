@@ -324,15 +324,32 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, userId, mode } = await req.json();
+    const { messages, mode } = await req.json();
     const researchMode: ResearchMode = mode || "general";
 
     const MULTI_AI_KEY = Deno.env.get("LOVABLE_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+    const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
     if (!MULTI_AI_KEY) {
       throw new Error("AI Gateway key is not configured");
+    }
+
+    // Derive user identity from JWT only — never trust a client-supplied userId
+    let userId: string | null = null;
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader?.startsWith("Bearer ") && SUPABASE_URL && SUPABASE_ANON_KEY) {
+      try {
+        const authClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+          global: { headers: { Authorization: authHeader } },
+        });
+        const token = authHeader.replace("Bearer ", "");
+        const { data } = await authClient.auth.getClaims(token);
+        if (data?.claims?.sub) userId = data.claims.sub as string;
+      } catch (e) {
+        console.warn("[Research] Could not verify JWT:", e);
+      }
     }
 
     console.log("[Research] Processing query with messages:", messages.length, "mode:", researchMode);
