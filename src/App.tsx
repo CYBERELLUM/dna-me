@@ -26,6 +26,7 @@ import APISettings from "./pages/APISettings";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/ScrollToTop";
+import { MissionWizard } from "./components/wizard/MissionWizard";
 
 const queryClient = new QueryClient();
 
