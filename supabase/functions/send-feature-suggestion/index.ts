@@ -81,6 +81,44 @@ const handler = async (req: Request): Promise<Response> => {
       subject: `[Feature Suggestion] ${category}: ${title}`,
       html,
     });
+
+    // Auto-reply to the submitter (if they provided an email)
+    if (body.submitterEmail) {
+      const submitterName = body.submitterName?.trim() || "there";
+      const autoReplyHtml = `
+<!DOCTYPE html><html><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f1117;color:#e5e7eb;padding:24px;">
+  <div style="max-width:600px;margin:0 auto;background:#1a1d27;border:1px solid #2a2f3a;border-radius:12px;padding:32px;">
+    <h2 style="margin:0 0 16px;color:#a78bfa;">Thank you, ${escapeHtml(submitterName)}!</h2>
+    <p style="line-height:1.6;color:#d1d5db;margin:0 0 16px;">
+      We've received your suggestion and truly appreciate you taking the time to help us improve the platform.
+    </p>
+    <p style="line-height:1.6;color:#d1d5db;margin:0 0 16px;">
+      Our team will review your input carefully. If we need any clarification, we'll reach out directly.
+    </p>
+    <div style="background:#0f1117;border:1px solid #2a2f3a;border-radius:8px;padding:16px;margin:20px 0;">
+      <div style="color:#9ca3af;font-size:12px;margin-bottom:6px;">Your submission</div>
+      <div style="color:#e5e7eb;font-weight:600;margin-bottom:4px;">${escapeHtml(title)}</div>
+      <div style="color:#9ca3af;font-size:13px;">Category: ${escapeHtml(category)}</div>
+    </div>
+    <p style="line-height:1.6;color:#d1d5db;margin:0 0 8px;">Warm regards,</p>
+    <p style="line-height:1.6;color:#a78bfa;margin:0;font-weight:600;">The Cyberellum Genomics Team</p>
+    <hr style="border:none;border-top:1px solid #2a2f3a;margin:24px 0 12px;" />
+    <p style="color:#6b7280;font-size:11px;margin:0;">This is an automated confirmation. Please do not reply.</p>
+  </div>
+</body></html>`;
+
+      try {
+        await client.send({
+          from: smtpFromEmail,
+          to: body.submitterEmail,
+          subject: `We received your suggestion: ${title}`,
+          html: autoReplyHtml,
+        });
+      } catch (autoErr) {
+        console.error("Auto-reply send failed:", autoErr);
+      }
+    }
+
     await client.close();
 
     return new Response(JSON.stringify({ success: true }), {
