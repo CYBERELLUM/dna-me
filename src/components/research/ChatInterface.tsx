@@ -48,8 +48,11 @@ export const ChatInterface = () => {
   const [isListening, setIsListening] = useState(false);
   const [sourcesOpen, setSourcesOpen] = useState(false);
   const [activeSources, setActiveSources] = useState<string[]>([]);
+  const [attachments, setAttachments] = useState<ParsedFile[]>([]);
+  const [parsingFiles, setParsingFiles] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
