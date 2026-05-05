@@ -37,7 +37,7 @@ const Index = () => {
               <span className="text-lg md:text-xl font-mono text-primary/80 uppercase tracking-[0.3em]">Cyberellum Technologies & Laboratory</span>
             </div>
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-4">
-              Research <span className="text-gradient-primary">Assistant</span>
+              Genomics <span className="text-gradient-primary">Oracle</span> & Collaboration Lab
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Your AI-powered concierge for genomics research. Query multiple AI providers simultaneously 
