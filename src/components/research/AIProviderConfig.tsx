@@ -118,15 +118,16 @@ export const AIProviderConfig = () => {
       try {
         const { data, error } = await supabase
           .from("api_configurations")
-          .select("*")
+          .select("provider, api_key_vault_id")
           .eq("user_id", user.id);
 
         if (error) throw error;
 
         const values: Record<string, string> = {};
         data?.forEach((config) => {
-          if (config.api_key_encrypted) {
-            values[`${config.provider}-api_key`] = config.api_key_encrypted;
+          if (config.api_key_vault_id) {
+            // Never fetch the plaintext key back to the browser — show a masked placeholder.
+            values[`${config.provider}-api_key`] = "••••••••••••••••";
           }
         });
         setFormValues(values);
