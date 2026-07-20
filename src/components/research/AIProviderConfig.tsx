@@ -157,29 +157,25 @@ export const AIProviderConfig = () => {
 
     setIsSaving(true);
     try {
-      // Get all providers with api_key fields that have values
-      const configurationsToSave = providers
-        .filter((provider) => {
-          const apiKeyField = provider.fields.find((f) => f.id === "api_key");
-          return apiKeyField && formValues[`${provider.id}-api_key`];
-        })
-        .map((provider) => ({
-          user_id: user.id,
-          provider: provider.id,
-          api_key_encrypted: formValues[`${provider.id}-api_key`],
-          is_enabled: true,
-        }));
+      const MASK = "••••••••••••••••";
+      const toSave = providers.filter((provider) => {
+        const apiKeyField = provider.fields.find((f) => f.id === "api_key");
+        const val = formValues[`${provider.id}-api_key`];
+        // Skip if empty or unchanged mask (user didn't edit)
+        return apiKeyField && val && val !== MASK;
+      });
 
-      // For each configuration, upsert (insert or update)
-      for (const config of configurationsToSave) {
-        const { error } = await supabase
-          .from("api_configurations")
-          .upsert(config, { onConflict: "user_id,provider" });
-
+      for (const provider of toSave) {
+        const { error } = await supabase.rpc("upsert_api_key", {
+          _provider: provider.id,
+          _api_key: formValues[`${provider.id}-api_key`],
+          _model: null,
+          _is_enabled: true,
+        });
         if (error) throw error;
       }
 
-      toast.success("Configuration saved successfully");
+      toast.success("Configuration saved securely (encrypted in Vault)");
     } catch (error) {
       console.error("Error saving configuration:", error);
       toast.error("Failed to save configuration");
