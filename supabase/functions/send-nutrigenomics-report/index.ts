@@ -242,11 +242,15 @@ const handler = async (req: Request): Promise<Response> => {
     const requestData: NutrigenomicsReportRequest = await req.json();
     console.log("Request from user:", userData.user.id);
 
-    const { recipientEmail } = requestData;
-
+    // Force recipient to the authenticated user's own email to prevent SMTP relay abuse.
+    // The caller-supplied recipientEmail is ignored.
+    const recipientEmail = userData.user.email;
     if (!recipientEmail) {
-      throw new Error("Recipient email is required");
+      return new Response(JSON.stringify({ success: false, error: "Authenticated user has no email on file." }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
+    requestData.recipientEmail = recipientEmail;
 
     // Get SMTP configuration from environment
     const smtpHost = Deno.env.get("SMTP_HOST");
