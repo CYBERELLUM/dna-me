@@ -529,42 +529,37 @@ serve(async (req) => {
         ]
       : messages;
 
-    // Get user's configured API keys
-    let userApiKeys: { provider: string; api_key_encrypted: string; is_enabled: boolean }[] = [];
-    
+    // Get user's configured API keys (decrypted from Vault via SECURITY DEFINER RPC)
+    let openaiKey: string | null = null;
+    let geminiKey: string | null = null;
+
     if (userId && SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
       try {
         const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-        const { data } = await supabase
-          .from("api_configurations")
-          .select("provider, api_key_encrypted, is_enabled")
-          .eq("user_id", userId)
-          .eq("is_enabled", true);
-        
-        if (data) {
-          userApiKeys = data;
-        }
+        const [openaiRes, geminiRes] = await Promise.all([
+          supabase.rpc("get_user_api_key", { _user_id: userId, _provider: "openai" }),
+          supabase.rpc("get_user_api_key", { _user_id: userId, _provider: "gemini" }),
+        ]);
+        openaiKey = (openaiRes.data as string | null) ?? null;
+        geminiKey = (geminiRes.data as string | null) ?? null;
       } catch (e) {
-        console.error("Error fetching user API keys:", e);
+        console.error("Error fetching user API keys from vault:", e);
       }
     }
 
-    const openaiConfig = userApiKeys.find(k => k.provider === "openai");
-    const geminiConfig = userApiKeys.find(k => k.provider === "gemini");
-    
     const queries: Promise<AIResponse>[] = [];
     const activeProviders: string[] = [];
 
     queries.push(queryPrimaryGateway(enhancedMessages, MULTI_AI_KEY, systemPrompt));
     activeProviders.push("Primary");
 
-    if (openaiConfig?.api_key_encrypted) {
-      queries.push(queryOpenAI(enhancedMessages, openaiConfig.api_key_encrypted, systemPrompt));
+    if (openaiKey) {
+      queries.push(queryOpenAI(enhancedMessages, openaiKey, systemPrompt));
       activeProviders.push("OpenAI");
     }
 
-    if (geminiConfig?.api_key_encrypted) {
-      queries.push(queryGemini(enhancedMessages, geminiConfig.api_key_encrypted, systemPrompt));
+    if (geminiKey) {
+      queries.push(queryGemini(enhancedMessages, geminiKey, systemPrompt));
       activeProviders.push("Gemini");
     }
 

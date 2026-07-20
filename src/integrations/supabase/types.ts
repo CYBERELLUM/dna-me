@@ -16,7 +16,7 @@ export type Database = {
     Tables: {
       api_configurations: {
         Row: {
-          api_key_encrypted: string | null
+          api_key_vault_id: string | null
           created_at: string
           id: string
           is_enabled: boolean | null
@@ -25,7 +25,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          api_key_encrypted?: string | null
+          api_key_vault_id?: string | null
           created_at?: string
           id?: string
           is_enabled?: boolean | null
@@ -34,7 +34,7 @@ export type Database = {
           user_id: string
         }
         Update: {
-          api_key_encrypted?: string | null
+          api_key_vault_id?: string | null
           created_at?: string
           id?: string
           is_enabled?: boolean | null
@@ -782,6 +782,7 @@ export type Database = {
           is_blocked: boolean
         }[]
       }
+      delete_api_key: { Args: { _provider: string }; Returns: boolean }
       detect_suspicious_login: {
         Args: { p_email: string; p_ip_address: string; p_user_agent: string }
         Returns: {
@@ -790,6 +791,11 @@ export type Database = {
           suspicion_reason: string
         }[]
       }
+      get_user_api_key: {
+        Args: { _provider: string; _user_id: string }
+        Returns: string
+      }
+      has_api_key: { Args: { _provider: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -805,6 +811,15 @@ export type Database = {
           p_ip_address: string
           p_success: boolean
           p_user_agent: string
+        }
+        Returns: string
+      }
+      upsert_api_key: {
+        Args: {
+          _api_key: string
+          _is_enabled?: boolean
+          _model?: string
+          _provider: string
         }
         Returns: string
       }
