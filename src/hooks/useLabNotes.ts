@@ -1,19 +1,20 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "@/integrations/api/client";
 import { toast } from "sonner";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 export interface LabNote {
   id: string;
   title: string;
   content: string;
   template: string | null;
+  pinned: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export const useLabNotes = () => {
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const [notes, setNotes] = useState<LabNote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -26,20 +27,17 @@ export const useLabNotes = () => {
     }
 
     try {
-      const { data, error } = await api
-        .from("lab_notes")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("updated_at", { ascending: false });
+      const { data, error } = await api.notes.list();
 
       if (error) throw error;
 
       setNotes(
-        data.map((note) => ({
+        (data || []).map((note) => ({
           id: note.id,
           title: note.title,
           content: note.content || "",
           template: note.template,
+          pinned: Boolean(note.pinned),
           createdAt: new Date(note.created_at),
           updatedAt: new Date(note.updated_at),
         }))
@@ -64,24 +62,17 @@ export const useLabNotes = () => {
     }
 
     try {
-      const { data, error } = await api
-        .from("lab_notes")
-        .insert({
-          user_id: user.id,
-          title,
-          content,
-          template,
-        })
-        .select()
-        .single();
+      const { data, error } = await api.notes.create({ title, content, template });
 
       if (error) throw error;
+      if (!data) throw new Error("Note was not returned");
 
       const newNote: LabNote = {
         id: data.id,
         title: data.title,
         content: data.content || "",
         template: data.template,
+        pinned: Boolean(data.pinned),
         createdAt: new Date(data.created_at),
         updatedAt: new Date(data.updated_at),
       };
@@ -97,25 +88,18 @@ export const useLabNotes = () => {
   };
 
   // Update an existing note
-  const updateNote = async (id: string, updates: Partial<Pick<LabNote, "title" | "content">>) => {
+  const updateNote = async (id: string, updates: Partial<Pick<LabNote, "title" | "content" | "pinned">>) => {
     if (!user) return;
 
     try {
-      const { error } = await api
-        .from("lab_notes")
-        .update({
-          title: updates.title,
-          content: updates.content,
-        })
-        .eq("id", id)
-        .eq("user_id", user.id);
+      const { data, error } = await api.notes.update(id, updates);
 
       if (error) throw error;
 
       setNotes((prev) =>
         prev.map((note) =>
           note.id === id
-            ? { ...note, ...updates, updatedAt: new Date() }
+            ? { ...note, ...updates, updatedAt: new Date(data?.updated_at || Date.now()) }
             : note
         )
       );
@@ -130,11 +114,7 @@ export const useLabNotes = () => {
     if (!user) return;
 
     try {
-      const { error } = await api
-        .from("lab_notes")
-        .delete()
-        .eq("id", id)
-        .eq("user_id", user.id);
+      const { error } = await api.notes.remove(id);
 
       if (error) throw error;
 

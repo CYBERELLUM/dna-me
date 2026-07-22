@@ -131,6 +131,12 @@ const auth = {
 
 export const api = {
   auth,
+  notes: {
+    async list() { return request<any[]>("/notes"); },
+    async create(input: { title: string; content: string; template: string }) { return request<any>("/notes", { method: "POST", body: JSON.stringify(input) }); },
+    async update(id: string, input: { title?: string; content?: string; pinned?: boolean }) { return request<any>(`/notes/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(input) }); },
+    async remove(id: string) { return request<void>(`/notes/${encodeURIComponent(id)}`, { method: "DELETE" }); },
+  },
   from<T = unknown>(table: string) { return new Query<T>(table); },
   async rpc<T = unknown>(name: string, body: unknown) { return request<T>(`/rpc/${encodeURIComponent(name)}`, { method: "POST", body: JSON.stringify(body) }); },
   functions: { async invoke<T = unknown>(name: string, options?: { body?: unknown }) { return request<T>(`/fn/${encodeURIComponent(name)}`, { method: "POST", body: JSON.stringify(options?.body ?? {}) }); } },

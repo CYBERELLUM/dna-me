@@ -15,11 +15,12 @@ import {
   Dna,
   Loader2,
   Download
+  ,Search, Pin
 } from "lucide-react";
 import { useLabNotes, LabNote } from "@/hooks/useLabNotes";
 import { exportNoteToPdf } from "@/lib/pdfExport";
 import { toast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 const useIsMobile = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -36,6 +37,8 @@ const templates = [
   { id: "observation", name: "Lab Observation", icon: Microscope },
   { id: "analysis", name: "Data Analysis", icon: Beaker },
   { id: "hypothesis", name: "Hypothesis Notes", icon: Dna },
+  { id: "literature", name: "Literature Review", icon: FileText },
+  { id: "meeting", name: "Collaboration Meeting", icon: FileText },
   { id: "blank", name: "Blank Note", icon: FileText },
 ];
 
@@ -192,6 +195,10 @@ const getTemplateContent = (templateId: string): string => {
 
 ---`,
 
+    literature: `# Literature Review\n\n## Topic: \n## Date: ${date}\n\n---\n\n### Research Question\n\n\n### Sources Reviewed\n1. \n\n### Evidence Summary\n\n\n### Key Findings\n\n\n### Limitations and Conflicts\n\n\n### Citation Notes\n\n\n### Follow-up Questions\n`,
+
+    meeting: `# Collaboration Meeting\n\n## Date: ${date}\n## Participants: \n## Project: \n\n---\n\n### Objective\n\n\n### Discussion Notes\n\n\n### Decisions\n- \n\n### Action Items\n- [ ] Owner — Action — Due date\n\n### Risks / Dependencies\n\n\n### Next Meeting\n`,
+
     blank: `# New Note
 
 ## Date: ${date}
@@ -205,16 +212,18 @@ const getTemplateContent = (templateId: string): string => {
 };
 
 const LabNotebook = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuthContext();
   const { notes, isLoading, createNote, updateNote, deleteNote } = useLabNotes();
   const [selectedNote, setSelectedNote] = useState<LabNote | null>(null);
   const [showTemplates, setShowTemplates] = useState(false);
   const [localTitle, setLocalTitle] = useState("");
   const [localContent, setLocalContent] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [search, setSearch] = useState("");
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isMobile = useIsMobile();
+  const visibleNotes = notes.filter((note) => `${note.title} ${note.content}`.toLowerCase().includes(search.toLowerCase())).sort((a, b) => Number(b.pinned) - Number(a.pinned));
 
   // Update local state when selected note changes
   useEffect(() => {
@@ -358,6 +367,10 @@ const LabNotebook = () => {
                     <Plus className="w-4 h-4" />
                   </button>
                 </div>
+                <div className="relative mb-4">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search notes" className="w-full rounded-md border border-border bg-secondary/40 py-2 pl-9 pr-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                </div>
 
                 {showTemplates && (
                   <div className="mb-4 p-4 bg-secondary/50 rounded-lg border border-border">
@@ -385,12 +398,12 @@ const LabNotebook = () => {
                     <div className="flex items-center justify-center py-8">
                       <Loader2 className="w-6 h-6 animate-spin text-primary" />
                     </div>
-                  ) : notes.length === 0 ? (
+                  ) : visibleNotes.length === 0 ? (
                     <p className="text-sm text-muted-foreground text-center py-8">
                       No notes yet. Create your first note using a template.
                     </p>
                   ) : (
-                    notes.map((note) => (
+                    visibleNotes.map((note) => (
                       <button
                         key={note.id}
                         onClick={() => setSelectedNote(note)}
@@ -400,7 +413,7 @@ const LabNotebook = () => {
                             : "bg-secondary/50 border-border hover:border-primary/20"
                         }`}
                       >
-                        <h4 className="font-medium text-foreground text-sm truncate">{note.title}</h4>
+                        <div className="flex items-center gap-2"><h4 className="font-medium text-foreground text-sm truncate flex-1">{note.title}</h4>{note.pinned && <Pin className="w-3 h-3 text-primary fill-primary" />}</div>
                         <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
                           <Calendar className="w-3 h-3" />
                           <span>{note.updatedAt.toLocaleDateString()}</span>
@@ -425,6 +438,7 @@ const LabNotebook = () => {
                         className="flex-1 bg-transparent text-xl font-semibold text-foreground focus:outline-none"
                       />
                       <div className="flex items-center gap-2">
+                        <button onClick={() => updateNote(selectedNote.id, { pinned: !selectedNote.pinned }).then(() => setSelectedNote({ ...selectedNote, pinned: !selectedNote.pinned }))} className="btn-secondary py-2 px-3 text-sm" title={selectedNote.pinned ? "Unpin note" : "Pin note"}><Pin className={`w-4 h-4 ${selectedNote.pinned ? "fill-current" : ""}`} /></button>
                         <button
                           onClick={handleExportPdf}
                           className="btn-secondary py-2 px-3 text-sm flex items-center gap-2"
