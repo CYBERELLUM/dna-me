@@ -102,17 +102,14 @@ const Settings = () => {
 
   const fetchProfile = async () => {
     if (!user) return;
-    
-    const { data, error } = await api
-      .from("profiles")
-      .select("display_name, institution")
-      .eq("id", user.id)
-      .single();
-    
-    if (data) {
-      setDisplayName(data.display_name || "");
-      setInstitution(data.institution || "");
+
+    const { data, error } = await api.auth.getProfile();
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      return;
     }
+    setDisplayName(String(data?.user?.display_name || ""));
+    setInstitution(String(data?.user?.institution || ""));
   };
 
   const handleSaveProfile = async () => {
@@ -120,15 +117,10 @@ const Settings = () => {
     
     setSaving(true);
     try {
-      const { error } = await api
-        .from("profiles")
-        .upsert({
-          id: user.id,
-          display_name: displayName,
-          institution: institution,
-          email: user.email,
-          updated_at: new Date().toISOString(),
-        });
+      const { error } = await api.auth.updateUser({
+        display_name: displayName,
+        institution,
+      });
 
       if (error) throw error;
       

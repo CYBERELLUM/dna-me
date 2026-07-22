@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { useChatHistory, ChatMessage } from "@/hooks/useChatHistory";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 const CHAT_URL = "/api/fn/research-assistant";
 
@@ -20,7 +20,7 @@ interface ResearchResponse {
 }
 
 export const useResearchChat = () => {
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const { 
     messages, 
     isLoading: historyLoading, 
@@ -63,20 +63,15 @@ export const useResearchChat = () => {
     }));
 
     try {
-      // Use the user's session token when available so the edge function can
-      // derive identity from the JWT instead of trusting a client-supplied userId.
-      const { api } = await import("@/integrations/api/client");
-      const { data: { session } } = await api.auth.getSession();
-      if (!session?.access_token) {
+      if (!user) {
         throw new Error("Please sign in to use the research assistant.");
       }
-      const bearer = session.access_token;
 
       const response = await fetch(CHAT_URL, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${bearer}`,
         },
         body: JSON.stringify({
           messages: apiMessages,

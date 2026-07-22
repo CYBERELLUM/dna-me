@@ -70,6 +70,7 @@ const auth = {
     currentSession = result.data?.authenticated ? { ...result.data, user: result.data.user } : null;
     return { data: { session: currentSession }, error: result.error };
   },
+  async getProfile() { return request<any>("/auth/profile"); },
   async signUp(input: any) {
     const result = await request<any>("/auth/register", { method: "POST", body: JSON.stringify({ email: input.email, password: input.password, display_name: input.options?.data?.display_name, requested_role: input.options?.data?.requested_role }) });
     return { data: result.data, error: result.error };
@@ -78,7 +79,9 @@ const auth = {
     const result = await request<any>("/auth/login", { method: "POST", body: JSON.stringify(input) });
     if (!result.error) {
       const sessionResult = await auth.getSession();
-      currentSession = sessionResult.data.session;
+      currentSession = sessionResult.data.session
+        ? { ...sessionResult.data.session, user: { ...sessionResult.data.session.user, ...(result.data?.user ?? {}) } }
+        : null;
       listeners.forEach(listener => listener("SIGNED_IN", currentSession));
     }
     return { data: { ...(result.data ?? {}), session: currentSession }, error: result.error };
@@ -90,7 +93,15 @@ const auth = {
     return { error: result.error };
   },
   async resend(input: unknown) { const result = await request<any>("/auth/resend", { method: "POST", body: JSON.stringify(input) }); return result; },
-  async updateUser(input: unknown) { const result = await request<any>("/auth/user", { method: "PATCH", body: JSON.stringify(input) }); return result; },
+  async updateUser(input: unknown) {
+    const result = await request<any>("/auth/user", { method: "PATCH", body: JSON.stringify(input) });
+    if (!result.error) {
+      const sessionResult = await auth.getSession();
+      currentSession = sessionResult.data.session;
+      listeners.forEach(listener => listener("USER_UPDATED", currentSession));
+    }
+    return result;
+  },
   async resetPasswordForEmail(email: string) { const result = await request<any>("/auth/forgot-password", { method: "POST", body: JSON.stringify({ email }) }); return result; },
   mfa: {
     async listFactors() { const result = await request<any>("/auth/mfa/factors"); return { data: result.data ?? { totp: [] }, error: result.error }; },
