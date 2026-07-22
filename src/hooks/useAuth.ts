@@ -97,6 +97,10 @@ export const useAuth = () => {
         const data = await response.json();
         return data as RateLimitResponse;
       }
+
+      if (!response.ok) {
+        return { allowed: true };
+      }
       
       return await response.json();
     } catch (error) {
