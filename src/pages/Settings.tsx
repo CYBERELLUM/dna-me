@@ -51,7 +51,7 @@ interface MFAFactor {
 }
 
 const Settings = () => {
-  const { user, loading, enrollMFA, verifyMFA, unenrollMFA, listMFAFactors } = useAuthContext();
+  const { user, session, loading, enrollMFA, verifyMFA, unenrollMFA, listMFAFactors } = useAuthContext();
   const [displayName, setDisplayName] = useState("");
   const [institution, setInstitution] = useState("");
   const [saving, setSaving] = useState(false);
@@ -129,9 +129,12 @@ const Settings = () => {
         description: "Your profile has been saved successfully.",
       });
     } catch (error) {
+      const message = error && typeof error === "object" && "message" in error
+        ? String(error.message)
+        : "Failed to save profile. Please try again.";
       toast({
         title: "Error",
-        description: "Failed to save profile. Please try again.",
+        description: message === "mfa required" ? "Complete Security & 2FA before saving profile changes." : message,
         variant: "destructive",
       });
     } finally {
@@ -484,7 +487,13 @@ const Settings = () => {
                   />
                 </div>
                 
-                <Button onClick={handleSaveProfile} disabled={saving}>
+                {session?.mfa_verified === false && (
+                  <p className="text-sm text-amber-400">
+                    Profile changes require MFA. <Link to="/security" className="underline underline-offset-4">Complete Security &amp; 2FA</Link>
+                  </p>
+                )}
+
+                <Button onClick={handleSaveProfile} disabled={saving || session?.mfa_verified === false}>
                   {saving ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   ) : (

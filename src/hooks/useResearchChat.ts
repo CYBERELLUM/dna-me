@@ -20,7 +20,7 @@ interface ResearchResponse {
 }
 
 export const useResearchChat = () => {
-  const { user } = useAuthContext();
+  const { user, session } = useAuthContext();
   const { 
     messages, 
     isLoading: historyLoading, 
@@ -66,6 +66,9 @@ export const useResearchChat = () => {
       if (!user) {
         throw new Error("Please sign in to use the research assistant.");
       }
+      if (session?.mfa_verified === false) {
+        throw new Error("Complete Security & 2FA before using the research assistant.");
+      }
 
       const response = await fetch(CHAT_URL, {
         method: "POST",
@@ -82,7 +85,7 @@ export const useResearchChat = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to get response");
+        throw new Error(errorData.message || errorData.error || "Failed to get response");
       }
 
       const data: ResearchResponse = await response.json();
@@ -119,7 +122,7 @@ export const useResearchChat = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [messages, isLoading, user, addMessage, saveMessage, setMessages, researchMode]);
+  }, [messages, isLoading, user, session, addMessage, saveMessage, setMessages, researchMode]);
 
   return { 
     messages, 
