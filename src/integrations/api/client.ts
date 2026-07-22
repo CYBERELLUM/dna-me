@@ -105,6 +105,25 @@ export const api = {
   from<T = unknown>(table: string) { return new Query<T>(table); },
   async rpc<T = unknown>(name: string, body: unknown) { return request<T>(`/rpc/${encodeURIComponent(name)}`, { method: "POST", body: JSON.stringify(body) }); },
   functions: { async invoke<T = unknown>(name: string, options?: { body?: unknown }) { return request<T>(`/fn/${encodeURIComponent(name)}`, { method: "POST", body: JSON.stringify(options?.body ?? {}) }); } },
+  aria: {
+    async speak(text: string): Promise<{ data: Blob | null; error: ApiError | null }> {
+      try {
+        const response = await fetch(`${API_BASE}/fn/dr-aria-speech`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ text }),
+        });
+        if (!response.ok) {
+          const body = await response.json().catch(() => null);
+          return { data: null, error: { message: body?.message ?? body?.error ?? `Voice request failed (${response.status})`, status: response.status } };
+        }
+        return { data: await response.blob(), error: null };
+      } catch (error) {
+        return { data: null, error: { message: error instanceof Error ? error.message : "Voice request failed" } };
+      }
+    },
+  },
   storage: { from(bucket: string) { return { async upload(path: string, file: File) { const form = new FormData(); form.append("file", file); const response = await fetch(`${API_BASE}/storage/${encodeURIComponent(bucket)}/${path}`, { method: "PUT", credentials: "include", body: form }); return response.ok ? { data: { path }, error: null } : { data: null, error: { message: `Upload failed (${response.status})`, status: response.status } }; } }; } },
 };
 
