@@ -106,7 +106,25 @@ const auth = {
   mfa: {
     async listFactors() { const result = await request<any>("/auth/mfa/factors"); return { data: result.data ?? { totp: [] }, error: result.error }; },
     async enroll(input: any) { const result = await request<any>("/auth/mfa/setup", { method: "POST", body: JSON.stringify(input) }); return result; },
-    async challengeAndVerify(input: any) { const result = await request<any>("/auth/mfa/verify", { method: "POST", body: JSON.stringify({ factor_id: input.factorId, code: input.code }) }); return result; },
+    async challengeAndVerify(input: any) {
+      const result = await request<any>("/auth/mfa/verify", { method: "POST", body: JSON.stringify({ factor_id: input.factorId, code: input.code }) });
+      if (!result.error) {
+        const sessionResult = await auth.getSession();
+        currentSession = sessionResult.data.session;
+        listeners.forEach(listener => listener("MFA_VERIFIED", currentSession));
+      }
+      return result;
+    },
+    async requestOtp() { return request<any>("/auth/mfa/otp/request", { method: "POST", body: "{}" }); },
+    async verifyOtp(code: string) {
+      const result = await request<any>("/auth/mfa/otp/verify", { method: "POST", body: JSON.stringify({ code }) });
+      if (!result.error) {
+        const sessionResult = await auth.getSession();
+        currentSession = sessionResult.data.session;
+        listeners.forEach(listener => listener("MFA_VERIFIED", currentSession));
+      }
+      return result;
+    },
     async unenroll(input: any) { const result = await request<any>("/auth/mfa/unenroll", { method: "POST", body: JSON.stringify({ factor_id: input.factorId }) }); return result; },
   },
 };

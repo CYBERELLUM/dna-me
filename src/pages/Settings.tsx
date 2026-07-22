@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
+import { MFASetup } from "@/components/auth/MFASetup";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -278,35 +279,7 @@ const Settings = () => {
   };
 
   const handleEnableMFA = async () => {
-    setMfaLoading(true);
-    try {
-      const { data, error } = await enrollMFA("GenomicsLab Authenticator");
-      
-      if (error) {
-        toast({
-          title: "Error",
-          description: error.message || "Failed to set up 2FA",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (data) {
-        setMfaQrCode(data.totp.qr_code);
-        setMfaSecret(data.totp.secret);
-        setMfaFactorId(data.id);
-        setMfaStep("qr");
-        setShowMFASetup(true);
-      }
-    } catch (err) {
-      toast({
-        title: "Error",
-        description: "Failed to set up 2FA",
-        variant: "destructive",
-      });
-    } finally {
-      setMfaLoading(false);
-    }
+    setShowMFASetup(true);
   };
 
   const handleVerifyMFA = async () => {
@@ -683,69 +656,10 @@ const Settings = () => {
                       ))}
                     </div>
                   ) : showMFASetup ? (
-                    <div className="space-y-4">
-                      {mfaStep === "qr" ? (
-                        <>
-                          <p className="text-sm text-muted-foreground">
-                            Scan this QR code with Google Authenticator or your preferred TOTP app.
-                          </p>
-                          <div className="bg-white p-4 rounded-lg mx-auto w-fit">
-                            <img src={mfaQrCode} alt="2FA QR Code" className="w-48 h-48" />
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground mb-2">Or enter this secret manually:</p>
-                            <code className="block p-3 bg-secondary rounded font-mono text-xs text-foreground break-all">
-                              {mfaSecret}
-                            </code>
-                          </div>
-                          <Button onClick={() => setMfaStep("verify")} className="w-full">
-                            Continue to Verification
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            onClick={() => setShowMFASetup(false)} 
-                            className="w-full"
-                          >
-                            Cancel
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <p className="text-sm text-muted-foreground">
-                            Enter the 6-digit code from your authenticator app.
-                          </p>
-                          <Input
-                            type="text"
-                            value={mfaVerificationCode}
-                            onChange={(e) => setMfaVerificationCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                            placeholder="000000"
-                            className="text-center text-2xl tracking-[0.5em] font-mono"
-                            maxLength={6}
-                          />
-                          <div className="flex gap-3">
-                            <Button 
-                              variant="outline" 
-                              onClick={() => setMfaStep("qr")}
-                              className="flex-1"
-                            >
-                              Back
-                            </Button>
-                            <Button 
-                              onClick={handleVerifyMFA}
-                              disabled={mfaLoading || mfaVerificationCode.length !== 6}
-                              className="flex-1"
-                            >
-                              {mfaLoading ? (
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              ) : (
-                                <CheckCircle2 className="w-4 h-4 mr-2" />
-                              )}
-                              Verify & Enable
-                            </Button>
-                          </div>
-                        </>
-                      )}
-                    </div>
+                    <MFASetup
+                      onComplete={() => { setShowMFASetup(false); fetchMFAFactors(); }}
+                      onSkip={() => setShowMFASetup(false)}
+                    />
                   ) : (
                     <div className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg">
                       <div className="flex items-center gap-3">
