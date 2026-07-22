@@ -11,6 +11,7 @@ import { Upload, Send, Sparkles, FileText, Key, CheckCircle2, Loader2, Copy } fr
 import { api } from "@/integrations/api/client";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
+import drAria from "@/assets/dr-aria.png";
 
 interface Msg { role: "user" | "assistant"; content: string; }
 interface UploadedDoc { filename: string; storage_path: string; mime_type: string; size_bytes: number; summary?: string; }
@@ -115,9 +116,29 @@ const Collaborate = () => {
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Chat */}
             <Card className="lg:col-span-2 p-0 flex flex-col h-[640px] bg-card/60 backdrop-blur border-border/60">
+              <div className="h-28 shrink-0 border-b border-border/60 px-6 flex items-center gap-4 overflow-hidden bg-secondary/20">
+                <img
+                  src={drAria}
+                  alt="Dr. Aria, Cyberellum collaboration intake AI"
+                  className="w-24 h-28 object-contain object-bottom self-end drop-shadow-[0_0_16px_hsl(var(--primary)/0.25)]"
+                />
+                <div>
+                  <p className="font-semibold text-foreground">Dr. Aria</p>
+                  <p className="text-xs font-mono uppercase tracking-wider text-primary">Collaboration Intake AI</p>
+                  <p className="text-xs text-muted-foreground mt-1">Online · Ready to guide partner onboarding</p>
+                </div>
+              </div>
               <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4">
                 {messages.map((m, i) => (
                   <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                    {m.role === "assistant" && (
+                      <img
+                        src={drAria}
+                        alt=""
+                        aria-hidden="true"
+                        className="w-10 h-10 object-cover object-top rounded-full border border-primary/30 bg-secondary mr-3 shrink-0"
+                      />
+                    )}
                     <div className={`max-w-[85%] rounded-xl px-4 py-3 text-sm ${
                       m.role === "user" ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground"
                     }`}>
