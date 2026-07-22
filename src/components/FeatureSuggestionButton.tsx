@@ -11,7 +11,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/integrations/api/client";
 import { toast } from "@/hooks/use-toast";
 
 const CATEGORIES = [
@@ -43,7 +43,7 @@ export const FeatureSuggestionButton = () => {
     }
     setSubmitting(true);
     try {
-      const { error } = await supabase.functions.invoke("send-feature-suggestion", {
+      const { error } = await api.functions.invoke("send-feature-suggestion", {
         body: {
           category,
           title: title.trim(),

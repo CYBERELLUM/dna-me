@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Shield, Upload, CheckCircle2, AlertTriangle, Loader2, Send, Globe } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/integrations/api/client";
 import { toast } from "sonner";
 
 interface Finding {
@@ -37,23 +37,23 @@ const VertexValidation = () => {
     setIsLoading(true);
     try {
       // Gather satellite data samples for verification
-      const { data: chatHistory } = await supabase
+      const { data: chatHistory } = await api
         .from('chat_history')
         .select('*')
         .order('created_at', { ascending: false })
         .limit(10);
 
-      const { data: savedItems } = await supabase
+      const { data: savedItems } = await api
         .from('saved_items')
         .select('*')
         .limit(10);
 
-      const { data: labNotes } = await supabase
+      const { data: labNotes } = await api
         .from('lab_notes')
         .select('*')
         .limit(10);
 
-      const response = await supabase.functions.invoke('vertex-verify', {
+      const response = await api.functions.invoke('vertex-verify', {
         body: {
           satellite_id: 'wymznknyhbsiqycrsduj',
           satellite_name: 'Culminate H Labs Satellite',
@@ -102,7 +102,7 @@ const VertexValidation = () => {
     
     setIsPushing(true);
     try {
-      const response = await supabase.functions.invoke('federated-seed', {
+      const response = await api.functions.invoke('federated-seed', {
         body: {
           push_verification: true,
           verification_result: result

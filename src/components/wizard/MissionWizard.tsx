@@ -19,7 +19,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/integrations/api/client";
 import { HeartPulse } from "lucide-react";
 import {
   Dialog,
@@ -137,8 +137,8 @@ export const MissionWizard = () => {
     if (!user) return;
     (async () => {
       const [{ data: roles }, { data: intake }] = await Promise.all([
-        supabase.from("user_roles").select("role").eq("user_id", user.id),
-        supabase.from("patient_intake").select("completed").eq("user_id", user.id).maybeSingle(),
+        api.from("user_roles").select("role").eq("user_id", user.id),
+        api.from("patient_intake").select("completed").eq("user_id", user.id).maybeSingle(),
       ]);
       const patient = !!roles?.some((r: any) => r.role === "patient");
       setIsPatient(patient);

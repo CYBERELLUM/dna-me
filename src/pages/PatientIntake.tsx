@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/integrations/api/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -103,7 +103,7 @@ const PatientIntake = () => {
       return;
     }
     (async () => {
-      const { data } = await supabase
+      const { data } = await api
         .from("patient_intake")
         .select("*")
         .eq("user_id", user.id)
@@ -178,7 +178,7 @@ const PatientIntake = () => {
         completed: markComplete,
         completed_at: markComplete ? new Date().toISOString() : null,
       };
-      const { error } = await supabase
+      const { error } = await api
         .from("patient_intake")
         .upsert(payload, { onConflict: "user_id" });
       if (error) throw error;

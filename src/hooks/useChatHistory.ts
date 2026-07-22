@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/integrations/api/client";
 import { useAuth } from "@/hooks/useAuth";
 
 export interface ChatMessage {
@@ -32,7 +32,7 @@ export const useChatHistory = () => {
     }
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await api
         .from("chat_history")
         .select("*")
         .eq("user_id", user.id)
@@ -82,7 +82,7 @@ export const useChatHistory = () => {
     if (!user) return null;
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await api
         .from("chat_history")
         .insert({
           user_id: user.id,
@@ -118,7 +118,7 @@ export const useChatHistory = () => {
     if (!user) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await api
         .from("chat_history")
         .delete()
         .eq("user_id", user.id);

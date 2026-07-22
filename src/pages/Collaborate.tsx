@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Upload, Send, Sparkles, FileText, Key, CheckCircle2, Loader2, Copy } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/integrations/api/client";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 
@@ -43,7 +43,7 @@ const Collaborate = () => {
     setSending(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("partner-onboarding", {
+      const { data, error } = await api.functions.invoke("partner-onboarding", {
         body: { messages: next, documents: docs.map(d => ({ filename: d.filename, summary: d.summary })) },
       });
       if (error) throw error;
@@ -63,7 +63,7 @@ const Collaborate = () => {
     if (!files.length) return;
     for (const file of files) {
       const path = `${crypto.randomUUID()}/${file.name}`;
-      const { error } = await supabase.storage.from("partner-documents").upload(path, file);
+      const { error } = await api.storage.from("partner-documents").upload(path, file);
       if (error) {
         toast.error(`Upload failed: ${file.name} — ${error.message}. (Sign in as admin required.)`);
         continue;
@@ -78,7 +78,7 @@ const Collaborate = () => {
     if (!contract) return;
     setIssuing(true);
     try {
-      const { data, error } = await supabase.functions.invoke("partner-issue-key", {
+      const { data, error } = await api.functions.invoke("partner-issue-key", {
         body: { contract, documents: docs },
       });
       if (error) throw error;

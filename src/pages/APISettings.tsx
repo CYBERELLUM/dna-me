@@ -23,8 +23,8 @@ const APISettings = () => {
     let cancelled = false;
     (async () => {
       if (!user?.id) { setIsAdmin(false); return; }
-      const { supabase } = await import("@/integrations/supabase/client");
-      const { data } = await supabase.rpc("is_admin", { _user_id: user.id });
+      const { api } = await import("@/integrations/api/client");
+      const { data } = await api.rpc("is_admin", { _user_id: user.id });
       if (!cancelled) setIsAdmin(Boolean(data));
     })();
     return () => { cancelled = true; };
@@ -41,9 +41,9 @@ const APISettings = () => {
 
     setIsVerifying(true);
     try {
-      // Re-authenticate with Supabase using the user's email and password
-      const { supabase } = await import("@/integrations/supabase/client");
-      const { error } = await supabase.auth.signInWithPassword({
+      // Re-authenticate through the governed API using the user's email and password.
+      const { api } = await import("@/integrations/api/client");
+      const { error } = await api.auth.signInWithPassword({
         email: user?.email || "",
         password: password,
       });

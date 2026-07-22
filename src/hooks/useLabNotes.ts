@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/integrations/api/client";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -26,7 +26,7 @@ export const useLabNotes = () => {
     }
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await api
         .from("lab_notes")
         .select("*")
         .eq("user_id", user.id)
@@ -64,7 +64,7 @@ export const useLabNotes = () => {
     }
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await api
         .from("lab_notes")
         .insert({
           user_id: user.id,
@@ -101,7 +101,7 @@ export const useLabNotes = () => {
     if (!user) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await api
         .from("lab_notes")
         .update({
           title: updates.title,
@@ -130,7 +130,7 @@ export const useLabNotes = () => {
     if (!user) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await api
         .from("lab_notes")
         .delete()
         .eq("id", id)

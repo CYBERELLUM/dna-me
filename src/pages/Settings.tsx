@@ -3,7 +3,7 @@ import { Navigation } from "@/components/layout/Navigation";
 import Footer from "@/components/layout/Footer";
 import PageBreadcrumb from "@/components/layout/PageBreadcrumb";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/integrations/api/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -103,7 +103,7 @@ const Settings = () => {
   const fetchProfile = async () => {
     if (!user) return;
     
-    const { data, error } = await supabase
+    const { data, error } = await api
       .from("profiles")
       .select("display_name, institution")
       .eq("id", user.id)
@@ -120,7 +120,7 @@ const Settings = () => {
     
     setSaving(true);
     try {
-      const { error } = await supabase
+      const { error } = await api
         .from("profiles")
         .upsert({
           id: user.id,
@@ -170,7 +170,7 @@ const Settings = () => {
     
     setVerificationLoading(true);
     try {
-      const { error } = await supabase.auth.resend({
+      const { error } = await api.auth.resend({
         type: 'signup',
         email: user.email,
         options: {
@@ -225,7 +225,7 @@ const Settings = () => {
     
     setPasswordLoading(true);
     try {
-      const { error } = await supabase.auth.updateUser({
+      const { error } = await api.auth.updateUser({
         password: newPassword
       });
       
@@ -254,7 +254,7 @@ const Settings = () => {
     
     setPasswordLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+      const { error } = await api.auth.resetPasswordForEmail(user.email, {
         redirectTo: `${window.location.origin}/settings`
       });
       
@@ -389,7 +389,7 @@ const Settings = () => {
 
   const handleSignOutAllSessions = async () => {
     try {
-      const { error } = await supabase.auth.signOut({ scope: 'global' });
+      const { error } = await api.auth.signOut({ scope: 'global' });
       
       if (error) throw error;
       

@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
-import { User, Session, AuthError } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+import { User, Session, AuthError } from "@/integrations/api/types";
+import { api } from "@/integrations/api/client";
 
-const AUTH_SECURITY_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/auth-security`;
+const AUTH_SECURITY_URL = "/api/auth/security";
 
 interface RateLimitResponse {
   allowed: boolean;
@@ -30,7 +30,7 @@ export const useAuth = () => {
 
   useEffect(() => {
     // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    const { data: { subscription } } = api.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
@@ -46,7 +46,7 @@ export const useAuth = () => {
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    api.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -56,7 +56,7 @@ export const useAuth = () => {
   }, []);
 
   const checkMFAStatus = async () => {
-    const { data, error } = await supabase.auth.mfa.listFactors();
+    const { data, error } = await api.auth.mfa.listFactors();
     if (!error && data.totp.length > 0) {
       const verifiedFactors = data.totp.filter(f => f.status === "verified");
       if (verifiedFactors.length > 0) {
@@ -68,7 +68,7 @@ export const useAuth = () => {
   const signUp = useCallback(async (email: string, password: string, displayName?: string, requestedRole?: string) => {
     const redirectUrl = `${window.location.origin}/`;
 
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await api.auth.signUp({
       email,
       password,
       options: {
@@ -88,7 +88,7 @@ export const useAuth = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          
         },
         body: JSON.stringify({ action: "check", email }),
       });
@@ -116,7 +116,7 @@ export const useAuth = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          
         },
         body: JSON.stringify({ 
           action: "log", 
@@ -150,7 +150,7 @@ export const useAuth = () => {
       console.warn("Suspicious login detected:", rateCheck.suspicionReason);
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await api.auth.signInWithPassword({
       email,
       password,
     });
@@ -160,7 +160,7 @@ export const useAuth = () => {
     
     if (!error && data.session) {
       // Check if MFA is required
-      const { data: factors } = await supabase.auth.mfa.listFactors();
+      const { data: factors } = await api.auth.mfa.listFactors();
       if (factors?.totp.some(f => f.status === "verified")) {
         setMfaRequired(true);
       }
@@ -174,13 +174,13 @@ export const useAuth = () => {
   }, [checkRateLimit, logLoginAttempt]);
 
   const signOut = useCallback(async () => {
-    const { error } = await supabase.auth.signOut();
+    const { error } = await api.auth.signOut();
     setMfaRequired(false);
     return { error };
   }, []);
 
   const enrollMFA = useCallback(async (friendlyName?: string) => {
-    const { data, error } = await supabase.auth.mfa.enroll({
+    const { data, error } = await api.auth.mfa.enroll({
       factorType: "totp",
       friendlyName: friendlyName || "Authenticator App",
     });
@@ -188,7 +188,7 @@ export const useAuth = () => {
   }, []);
 
   const verifyMFA = useCallback(async (factorId: string, code: string) => {
-    const { data, error } = await supabase.auth.mfa.challengeAndVerify({
+    const { data, error } = await api.auth.mfa.challengeAndVerify({
       factorId,
       code,
     });
@@ -201,14 +201,14 @@ export const useAuth = () => {
   }, []);
 
   const unenrollMFA = useCallback(async (factorId: string) => {
-    const { data, error } = await supabase.auth.mfa.unenroll({
+    const { data, error } = await api.auth.mfa.unenroll({
       factorId,
     });
     return { data, error };
   }, []);
 
   const listMFAFactors = useCallback(async () => {
-    const { data, error } = await supabase.auth.mfa.listFactors();
+    const { data, error } = await api.auth.mfa.listFactors();
     return { data, error };
   }, []);
 

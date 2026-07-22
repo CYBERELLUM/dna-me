@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { useChatHistory, ChatMessage } from "@/hooks/useChatHistory";
 import { useAuth } from "@/hooks/useAuth";
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/research-assistant`;
+const CHAT_URL = "/api/fn/research-assistant";
 
 export type ResearchMode =
   | "general"
@@ -65,8 +65,8 @@ export const useResearchChat = () => {
     try {
       // Use the user's session token when available so the edge function can
       // derive identity from the JWT instead of trusting a client-supplied userId.
-      const { supabase } = await import("@/integrations/supabase/client");
-      const { data: { session } } = await supabase.auth.getSession();
+      const { api } = await import("@/integrations/api/client");
+      const { data: { session } } = await api.auth.getSession();
       if (!session?.access_token) {
         throw new Error("Please sign in to use the research assistant.");
       }

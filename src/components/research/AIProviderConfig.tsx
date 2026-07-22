@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp, Key, Server, Link2, Shield, Eye, EyeOff, Loader2, Download, Upload } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/integrations/api/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useRef } from "react";
@@ -116,7 +116,7 @@ export const AIProviderConfig = () => {
       }
 
       try {
-        const { data, error } = await supabase
+        const { data, error } = await api
           .from("api_configurations")
           .select("provider, api_key_vault_id")
           .eq("user_id", user.id);
@@ -166,7 +166,7 @@ export const AIProviderConfig = () => {
       });
 
       for (const provider of toSave) {
-        const { error } = await supabase.rpc("upsert_api_key", {
+        const { error } = await api.rpc("upsert_api_key", {
           _provider: provider.id,
           _api_key: formValues[`${provider.id}-api_key`],
           _model: null,

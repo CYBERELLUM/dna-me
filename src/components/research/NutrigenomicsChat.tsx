@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/integrations/api/client";
 import { Loader2, Send, Leaf, Sparkles, TrendingUp, Clock, Dna, FlaskConical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -99,7 +99,7 @@ If asked to visualize data, describe what the visualization would show and inclu
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("nutrigenomics-forecast", {
+      const { data, error } = await api.functions.invoke("nutrigenomics-forecast", {
         body: {
           messages: [...messages, userMessage].map(m => ({ role: m.role, content: m.content })),
           systemPrompt: buildSystemPrompt()

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/integrations/api/client";
 import { Mail, Send, Loader2, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,7 +63,7 @@ const EmailReportDialog = ({ cellularData, selectedCompound, aiInsights }: Email
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("send-nutrigenomics-report", {
+      const { data, error } = await api.functions.invoke("send-nutrigenomics-report", {
         body: {
           recipientEmail: email.trim(),
           recipientName: name.trim() || undefined,

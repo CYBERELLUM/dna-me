@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/integrations/api/client";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import type { PubMedArticle, GeneInfo, SequenceInfo } from "@/lib/api/ncbi";
@@ -28,7 +28,7 @@ export const useSavedItems = () => {
     }
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await api
         .from("saved_items")
         .select("*")
         .eq("user_id", user.id)
@@ -88,7 +88,7 @@ export const useSavedItems = () => {
         item_data: JSON.parse(JSON.stringify(itemData)),
       };
       
-      const { data, error } = await supabase
+      const { data, error } = await api
         .from("saved_items")
         .insert(insertData)
         .select()
@@ -117,7 +117,7 @@ export const useSavedItems = () => {
     if (!user) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await api
         .from("saved_items")
         .delete()
         .eq("user_id", user.id)
