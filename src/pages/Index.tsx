@@ -4,7 +4,7 @@ import { DNAMatrix } from "@/components/layout/DNAMatrix";
 import { ChatInterface } from "@/components/research/ChatInterface";
 import Footer from "@/components/layout/Footer";
 import { Sparkles, Zap, Globe, Shield, Settings, Loader2 } from "lucide-react";
-import cyberellumLogo from "@/assets/cyberellum-logo.png";
+import healthcareCoin from "@/assets/healthcare-coin.png";
 import { Link, Navigate } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
 
@@ -87,8 +87,8 @@ const Index = () => {
 
                   {/* Logo */}
                   <img
-                    src={cyberellumLogo}
-                    alt="Genomics Oracle emblem"
+                    src={healthcareCoin}
+                    alt="Genomics Collaborative healthcare emblem"
                     loading="lazy"
                     className="w-20 h-20 md:w-24 md:h-24 object-contain logo-glow relative z-10"
                   />
