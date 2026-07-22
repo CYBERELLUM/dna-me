@@ -12,7 +12,7 @@ import DataVault from "./pages/DataVault";
 import Sequences from "./pages/Sequences";
 import Visualizations3D from "./pages/Visualizations3D";
 import NutrigenomicsForecasting from "./pages/NutrigenomicsForecasting";
-import VertexValidation from "./pages/VertexValidation";
+import AxiomCoreValidation from "./pages/AxiomCoreValidation";
 import Blogs from "./pages/Blogs";
 import About from "./pages/About";
 import Terms from "./pages/Terms";
@@ -58,7 +58,7 @@ const App = () => (
             <Route path="/collaborate" element={<Collaborate />} />
             {/* legacy redirect */}
             <Route path="/federated-network" element={<Navigate to="/collaborate" replace />} />
-            <Route path="/vertex-validation" element={<VertexValidation />} />
+            <Route path="/axiom-core-validation" element={<AxiomCoreValidation />} />
             <Route path="/middleware" element={<Middleware />} />
             <Route path="/developers" element={<Developers />} />
             <Route path="/blogs" element={<Blogs />} />

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Dna, Mail, Github, Linkedin, Twitter } from "lucide-react";
-import cyberellumLogo from "@/assets/cyberellum-logo.png";
+import cyberellumLogo from "@/assets/cyberellum-coin.png";
 import axiomBadge from "@/assets/axiom-compliance-badge.png";
 
 const Footer = () => {
@@ -16,7 +16,7 @@ const Footer = () => {
               <img 
                 src={cyberellumLogo} 
                 alt="Cyberellum Technologies and Laboratory" 
-                className="w-10 h-10 object-contain"
+                className="w-16 h-16 object-contain drop-shadow-[0_0_12px_hsl(var(--primary)/0.25)]"
               />
               <div className="flex flex-col">
                 <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">CYBERELLUM</span>

@@ -105,11 +105,11 @@ const MISSIONS: Mission[] = [
     route: "/collaborate",
   },
   {
-    id: "vertex",
+    id: "axiom-core",
     title: "Verify a node",
     description: "Audit federation node authenticity and signal quality.",
     icon: ShieldCheck,
-    route: "/vertex-validation",
+    route: "/axiom-core-validation",
   },
 ];
 

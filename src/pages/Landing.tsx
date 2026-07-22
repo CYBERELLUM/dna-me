@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { DNAMatrix } from "@/components/layout/DNAMatrix";
 import Footer from "@/components/layout/Footer";
 import { Sparkles, Zap, Globe, Shield, ArrowRight, Dna, FlaskConical, Microscope, Brain } from "lucide-react";
-import cyberellumLogo from "@/assets/cyberellum-logo.png";
+import healthcareCoin from "@/assets/healthcare-coin.png";
 
 const Landing = () => {
   return (
@@ -13,11 +13,15 @@ const Landing = () => {
       <header className="relative z-10 border-b border-border/50 bg-background/80 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={cyberellumLogo} alt="Cyberellum" className="w-10 h-10 object-contain" />
-            <span className="text-lg font-bold text-foreground">Cyberellum Genomics</span>
+            <img
+              src={healthcareCoin}
+              alt="AXIOM Healthcare Governance"
+              className="w-12 h-12 object-contain drop-shadow-[0_0_12px_hsl(var(--primary)/0.25)]"
+            />
+            <span className="text-lg font-bold text-foreground tracking-wide">GENOMICS COLLABORATIVE</span>
           </div>
           <Link
-            to="/dashboard"
+            to="/auth"
             className="btn-primary flex items-center gap-2 px-6 py-2"
           >
             Enter Platform
@@ -52,7 +56,7 @@ const Landing = () => {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
               <Link
-                to="/dashboard"
+                to="/auth"
                 className="btn-primary flex items-center gap-2 px-8 py-3 text-lg"
               >
                 Get Started

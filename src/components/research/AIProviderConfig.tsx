@@ -43,9 +43,9 @@ const providers: Provider[] = [
     fields: [{ id: "api_key", label: "API Key", placeholder: "key_...", type: "password" }],
   },
   {
-    id: "vertex",
-    name: "Enterprise ML",
-    description: "Enterprise ML platform",
+    id: "axiom-oracle",
+    name: "AXIOM Oracle",
+    description: "Governed multi-model intelligence",
     status: "disconnected",
     fields: [
       { id: "project_id", label: "Project ID", placeholder: "my-project-123", type: "text" },

@@ -13,7 +13,7 @@ const navItems = [
   { path: "/notebook", label: "Notebook", icon: FlaskConical },
   { path: "/data-vault", label: "Vault", icon: Database },
   { path: "/collaborate", label: "Collaborate", icon: Handshake },
-  { path: "/vertex-validation", label: "Vertex", icon: ShieldCheck },
+  { path: "/axiom-core-validation", label: "AXIOM Core", icon: ShieldCheck },
   { path: "/middleware", label: "Middleware", icon: Network },
   { path: "/developers", label: "Developers", icon: Code2 },
 ];
@@ -31,29 +31,7 @@ export const Navigation = () => {
             <Dna className="w-6 h-6 text-primary" />
           </Link>
 
-          {/* Desktop Navigation - only at xl+ where all items fit */}
-          <div className="hidden xl:flex items-center gap-1">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.path;
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 ${
-                    isActive
-                      ? "bg-primary/10 text-primary border border-primary/30"
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {item.label}
-                </Link>
-              );
-            })}
-          </div>
-
-          {/* Right side: User Menu always visible + hamburger below xl */}
+          {/* Right side: User Menu + hamburger navigation */}
           <div className="flex items-center gap-3">
             <div className="hidden lg:flex items-center gap-2 text-xs font-mono text-muted-foreground">
               <div className="pulse-dot" />
@@ -61,11 +39,11 @@ export const Navigation = () => {
             </div>
             <UserMenu />
 
-            {/* Mobile/Tablet Menu Button - shown below xl */}
+            {/* Right-side menu at every screen width */}
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
                 <button
-                  className="xl:hidden p-2 text-muted-foreground hover:text-foreground"
+                  className="p-2 text-muted-foreground hover:text-foreground"
                   aria-label="Open menu"
                 >
                   <Menu className="w-6 h-6" />

@@ -3,10 +3,11 @@ import { ParallaxSection } from "@/components/layout/ParallaxSection";
 import { DNAMatrix } from "@/components/layout/DNAMatrix";
 import Footer from "@/components/layout/Footer";
 import PageBreadcrumb from "@/components/layout/PageBreadcrumb";
+import messengerCoin from "@/assets/messenger-coin.png";
+import transportCoin from "@/assets/transport-coin.png";
 import { Link } from "react-router-dom";
 import {
   Network,
-  Workflow,
   ShieldCheck,
   Cpu,
   Leaf,
@@ -51,14 +52,22 @@ const Middleware = () => {
 
           <div className="grid md:grid-cols-3 gap-6 mb-16">
             <div className="card-scientific text-center">
-              <Workflow className="w-8 h-8 text-primary mx-auto mb-3" />
+              <img
+                src={transportCoin}
+                alt="AXIOM governed transport"
+                className="w-24 h-24 object-contain mx-auto mb-3 drop-shadow-[0_0_14px_hsl(var(--primary)/0.2)]"
+              />
               <h3 className="font-semibold text-foreground mb-2">API Concentrator</h3>
               <p className="text-sm text-muted-foreground">
                 One contract for ingestion, validation, and routing across heterogeneous endpoints.
               </p>
             </div>
             <div className="card-scientific text-center">
-              <ShieldCheck className="w-8 h-8 text-accent mx-auto mb-3" />
+              <img
+                src={messengerCoin}
+                alt="AXIOM secured messenger"
+                className="w-24 h-24 object-contain mx-auto mb-3 drop-shadow-[0_0_14px_hsl(var(--primary)/0.2)]"
+              />
               <h3 className="font-semibold text-foreground mb-2">Governed Exchange</h3>
               <p className="text-sm text-muted-foreground">
                 Every signal, doctrine, and insight passes audit, fabrication checks, and verification.

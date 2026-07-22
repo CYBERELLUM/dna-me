@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Shield, Upload, CheckCircle2, AlertTriangle, Loader2, Send, Globe } from "lucide-react";
 import { api } from "@/integrations/api/client";
 import { toast } from "sonner";
+import axiomCoreCoin from "@/assets/axiom-core-coin.png";
 
 interface Finding {
   category: string;
@@ -27,7 +28,7 @@ interface VerificationResult {
   timestamp: string;
 }
 
-const VertexValidation = () => {
+const AxiomCoreValidation = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isPushing, setIsPushing] = useState(false);
   const [result, setResult] = useState<VerificationResult | null>(null);
@@ -53,7 +54,7 @@ const VertexValidation = () => {
         .select('*')
         .limit(10);
 
-      const response = await api.functions.invoke('vertex-verify', {
+      const response = await api.functions.invoke('axiom-core-verify', {
         body: {
           satellite_id: 'wymznknyhbsiqycrsduj',
           satellite_name: 'Culminate H Labs Satellite',
@@ -142,19 +143,23 @@ const VertexValidation = () => {
   return (
     <PageLayout>
       <div className="max-w-4xl mx-auto space-y-6 pt-20 px-4">
-        <PageBreadcrumb currentPage="Vertex Validation" />
+        <PageBreadcrumb currentPage="AXIOM Core Validation" />
         
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Shield className="w-8 h-8 text-primary" />
+          <div className="flex items-center gap-4">
+            <img
+              src={axiomCoreCoin}
+              alt="AXIOM Core AI Governance"
+              className="w-24 h-24 object-contain drop-shadow-[0_0_16px_hsl(var(--primary)/0.25)]"
+            />
             <div>
               <h1 className="text-2xl font-bold">System Integrity & Knowledge Ingestion</h1>
-              <p className="text-muted-foreground text-sm">Vertex AI powered validation</p>
+              <p className="text-muted-foreground text-sm">AXIOM Core governed validation</p>
             </div>
           </div>
           <Badge variant="outline" className="border-primary text-primary">
-            VERTEX AI
+            AXIOM CORE
           </Badge>
         </div>
 
@@ -198,9 +203,9 @@ const VertexValidation = () => {
                 {/* Validator Section */}
                 <div className="space-y-4">
                   <div>
-                    <h3 className="font-semibold text-lg">Vertex AI System Integrity Validator</h3>
+                    <h3 className="font-semibold text-lg">AXIOM Core System Integrity Validator</h3>
                     <p className="text-muted-foreground text-sm">
-                      Uses Google Vertex AI (Gemini) to independently audit system authenticity, identify simulated vs real functionality, and validate data integrity.
+                      Uses AXIOM Oracle to independently audit system authenticity, identify simulated versus real functionality, and validate data integrity.
                     </p>
                   </div>
 
@@ -328,7 +333,7 @@ const VertexValidation = () => {
         {/* Footer Status */}
         <div className="flex items-center justify-between text-xs text-muted-foreground font-mono">
           <div className="flex items-center gap-2">
-            <span>VERTEX-VERIFY v1.0</span>
+            <span>AXIOM-CORE-VERIFY v1.0</span>
             <span className="flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
               All Systems Nominal
@@ -345,4 +350,4 @@ const VertexValidation = () => {
   );
 };
 
-export default VertexValidation;
+export default AxiomCoreValidation;

@@ -26,7 +26,7 @@ const endpoints = [
   },
   {
     icon: ShieldCheck,
-    name: "vertex-verify",
+    name: "axiom-core-verify",
     purpose: "Authenticity and fabrication audit for participating partners and submitted payloads.",
     method: "POST",
   },
@@ -82,7 +82,7 @@ const Developers = () => {
             <ul className="space-y-2 text-muted-foreground text-sm list-disc pl-5">
               <li>Every inbound payload is audit-logged with source, validation status, and processing time.</li>
               <li>Fabrication detection runs on submitted protocols and signals before they propagate.</li>
-              <li>Partner authenticity is continuously re-verified through the vertex audit channel.</li>
+              <li>Partner authenticity is continuously re-verified through the AXIOM Core audit channel.</li>
               <li>Reads are constrained to an allow-list of shared tables and capped result sizes.</li>
               <li>Partners retain sovereign custody of raw data; the fabric coordinates trust and routing.</li>
             </ul>

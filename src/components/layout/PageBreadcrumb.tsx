@@ -28,7 +28,7 @@ const routeLabels: Record<string, string> = {
   "/nutrigenomics": "Nutrigenomics",
   "/data-vault": "Data Vault",
   "/collaborate": "Collaborate",
-  "/vertex-validation": "Vertex Validation",
+  "/axiom-core-validation": "AXIOM Core Validation",
   "/blogs": "Blogs",
   "/about": "About",
   "/terms": "Terms",
